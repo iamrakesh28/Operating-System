@@ -1,0 +1,3 @@
+load --int=7 $HOME/myexpos/spl/spl_progs/sample_int7.xsm
+load --os $HOME/myexpos/spl/spl_progs/os_startup.xsm
+load --init $HOME/myexpos/expl/expl_progs/cubes.xsm
