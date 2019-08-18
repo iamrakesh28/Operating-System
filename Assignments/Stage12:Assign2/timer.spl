@@ -1,0 +1,37 @@
+breakpoint;
+[PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
+backup;
+alias curPID R0;
+curPID = [SYSTEM_STATUS_TABLE + 1];
+alias process_table_entry R1;
+process_table_entry = PROCESS_TABLE + curPID * 16;
+[process_table_entry + 12] = SP % 512;
+[process_table_entry + 14] = PTBR;
+[process_table_entry + 15] = PTLR;
+[process_table_entry + 4] = READY;
+
+alias newPID R2;
+newPID = 1 - curPID;
+
+alias new_process R3;
+new_process = PROCESS_TABLE + newPID * 16;
+
+//Set back Kernel SP, PTBR, PTLR
+
+SP = [new_process + 11] * 512 + [new_process + 12];
+PTBR = [new_process + 14];
+PTLR = [new_process + 15];
+[SYSTEM_STATUS_TABLE + 1] = newPID;
+
+if ([new_process + 4] == CREATED) then
+	[new_process + 4] = RUNNING;
+	SP = [new_process + 13];
+	breakpoint;
+	ireturn;
+endif;
+[new_process + 4] = RUNNING;
+restore;
+SP = [PROCESS_TABLE + 16 * [SYSTEM_STATUS_TABLE + 1] + 13];
+breakpoint;
+ireturn;
