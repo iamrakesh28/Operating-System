@@ -1,15 +1,28 @@
+// Library Code
 loadi(63,13);
 loadi(64,14);
+
+// Init Program
 loadi(65,7);
 loadi(66,8);
+
+// INT 10 Module
 loadi(22,35);
 loadi(23,36);
+
+// Exception Handler
 loadi(2, 15);
 loadi(3, 16);
+
+// Timer Interrupt Module
 loadi(4, 17);
 loadi(5, 18);
+
+// INT 7 Module
 loadi(16,29);
 loadi(17,30);
+
+// Idle Code
 loadi(69, 11);
 loadi(70, 12);
 

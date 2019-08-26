@@ -1,3 +1,4 @@
+//breakpoint;
 [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
 SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
 backup;
@@ -10,8 +11,13 @@ process_table_entry = PROCESS_TABLE + curPID * 16;
 [process_table_entry + 15] = PTLR;
 [process_table_entry + 4] = READY;
 
+breakpoint;
 alias newPID R2;
-newPID = 1 - curPID;
+newPID = 1 + curPID;
+
+if (newPID > 2) then
+	newPID = 0;
+endif;
 
 alias new_process R3;
 new_process = PROCESS_TABLE + newPID * 16;
@@ -26,9 +32,11 @@ PTLR = [new_process + 15];
 if ([new_process + 4] == CREATED) then
 	[new_process + 4] = RUNNING;
 	SP = [new_process + 13];
+	//breakpoint;
 	ireturn;
 endif;
 [new_process + 4] = RUNNING;
 restore;
 SP = [PROCESS_TABLE + 16 * [SYSTEM_STATUS_TABLE + 1] + 13];
+//breakpoint;
 ireturn;
