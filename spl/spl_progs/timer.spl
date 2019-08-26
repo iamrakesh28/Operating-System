@@ -12,7 +12,11 @@ process_table_entry = PROCESS_TABLE + curPID * 16;
 [process_table_entry + 4] = READY;
 
 alias newPID R2;
-newPID = 1 - curPID;
+newPID = 1 + curPID;
+
+if (newPID > 2) then
+	newPID = 0;
+endif;
 
 alias new_process R3;
 new_process = PROCESS_TABLE + newPID * 16;
