@@ -1,0 +1,29 @@
+int main()
+{
+	decl
+	int i, ret, p, temp, div;
+	enddecl
+	begin
+		ret = exposcall("Write", -2, 2);
+		i = 3;
+		while (i < 100) do
+			p = 2;
+			ret = 0;
+			temp = p * p;
+			while (temp <= i) do
+				div = i % p;
+				if (div == 0) then
+					ret = 1;
+					break;
+				endif;
+				p = p + 1;
+				temp = p * p;
+			endwhile;
+			if (ret == 0) then
+				ret = exposcall("Write", -2, i);
+			endif;
+			i = i + 2;
+		endwhile;
+		return 0;
+	end
+}
