@@ -1,3 +1,4 @@
+breakpoint;
 // Library Code
 loadi(63,13);
 loadi(64,14);
@@ -6,8 +7,15 @@ loadi(64,14);
 loadi(65,7);
 loadi(66,8);
 
+// Module 5
+loadi(50,63);
+loadi(51,64);
+
 // Even Program starts from 83
 loadi(83, 69);
+
+// Prime Program starts from 90
+loadi(90, 70);
 
 // INT 10 Module
 loadi(22,35);
@@ -99,7 +107,7 @@ PTLR = 10;
 [PTBR+18] = 86;
 [PTBR+19] = "0110";
 
-//User Page Area = 91
+//User Page Area = 89
 [PROCESS_TABLE + 11 + 32] = 89;
 [PROCESS_TABLE + 1 + 32] = 2;
 [PROCESS_TABLE + 4 + 32] = CREATED;
@@ -109,5 +117,57 @@ PTLR = 10;
 [PROCESS_TABLE + 15 + 32] = PTLR;
 
 [85 * 512] = [83* 512 + 1];
+
+// Prime Program starts from page 90
+PTBR = PAGE_TABLE_BASE + 60;
+PTLR = 10;
+
+//Library
+[PTBR+0] = 63;
+[PTBR+1] = "0100";
+[PTBR+2] = 64;
+[PTBR+3] = "0100";
+
+//Heap
+[PTBR+4] = 94;
+[PTBR+5] = "0110";
+[PTBR+6] = 95;
+[PTBR+7] = "0110";
+
+//Code
+[PTBR+8] = 90;
+[PTBR+9] = "0100";
+[PTBR+10] = 91;
+[PTBR+11] = "0100";
+[PTBR+12] = -1;
+[PTBR+13] = "0000";
+[PTBR+14] = -1;
+[PTBR+15] = "0000";
+
+//Stack
+[PTBR+16] = 92;
+[PTBR+17] = "0110";
+[PTBR+18] = 93;
+[PTBR+19] = "0110";
+
+//User Page Area = 96
+[PROCESS_TABLE + 11 + 48] = 96;
+[PROCESS_TABLE + 1 + 48] = 3;
+[PROCESS_TABLE + 4 + 48] = CREATED;
+[PROCESS_TABLE + 12 + 48] = 0;
+[PROCESS_TABLE + 13 + 48] = 8 * 512;
+[PROCESS_TABLE + 14 + 48] = PTBR;
+[PROCESS_TABLE + 15 + 48] = PTLR;
+
+[92 * 512] = [90* 512 + 1];
+
+// Initializing STATE filed of other table entries to TERMINATED
+
+alias id R0;
+id = 4;
+while (id <= 10) do
+	[PROCESS_TABLE + 4 + 16 * id] = TERMINATED;
+	id = id + 1;
+endwhile;
 
 return;

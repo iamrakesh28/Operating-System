@@ -1,0 +1,24 @@
+//Device Manager Module
+
+alias funcNum R1;
+alias currPID R2;
+if (funcNum == 3)
+then
+	// Acquire
+	alias word R3;
+	multipush(R1, R2, R3);
+	R1 = 8;
+	R2 = currPID;
+	call MOD_0;
+	multipop(R1, R2, R3);
+	print word;
+	// Release
+	multipush(R1, R2, R3);
+	R1 = 9;
+	R2 = currPID;
+	call MOD_0;
+	multipop(R1, R2, R3);
+	return;
+else
+	return;
+endif;

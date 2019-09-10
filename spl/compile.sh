@@ -1,0 +1,9 @@
+./spl /root/Desktop/myexpos/Assignments/Stage15:Assign1/sched_module.spl
+./spl /root/Desktop/myexpos/Assignments/Stage15:Assign1/timer.spl
+./spl /root/Desktop/myexpos/Assignments/Stage15:Assign1/boot_module.spl
+./spl /root/Desktop/myexpos/Assignments/Stage15:Assign1/haltprog.spl
+./spl /root/Desktop/myexpos/Assignments/Stage15:Assign1/sched_module.spl
+./spl /root/Desktop/myexpos/Assignments/Stage15:Assign1/os_startup.spl
+./spl /root/Desktop/myexpos/Assignments/Stage15:Assign1/MOD_0.spl
+./spl /root/Desktop/myexpos/Assignments/Stage15:Assign1/MOD_4.spl
+./spl /root/Desktop/myexpos/Assignments/Stage15:Assign1/sample_int7.spl

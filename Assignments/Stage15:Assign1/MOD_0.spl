@@ -1,0 +1,51 @@
+//Resource Manager Module
+
+alias funcNum R1;
+alias currPID R2;
+
+// Acquire
+if (funcNum == 8)
+then
+	breakpoint;
+	alias status R4;
+	status = [TERMINAL_STATUS_TABLE];
+	if (status == 1)
+	then
+		[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 4] = WAIT_TERMINAL;
+		multipush(R1, R2, R4);
+		call MOD_5;
+		multipop(R1, R2, R4);
+	endif;
+	[TERMINAL_STATUS_TABLE] = 1;
+	[TERMINAL_STATUS_TABLE + 1] = currPID;
+	breakpoint;
+	return;
+endif;
+
+// Release
+if (funcNum == 9)
+then
+	breakpoint;
+	alias pid R3;
+	pid = [TERMINAL_STATUS_TABLE + 1];
+	if (pid != currPID)
+	then
+		R0 = -1;
+		return;
+	endif;
+	[TERMINAL_STATUS_TABLE] = 0;
+	alias id R0;
+	id = 1;
+	while (id < 10) do
+		alias state R4;
+		state = [PROCESS_TABLE + 4 + 16 * id];
+		if (state == WAIT_TERMINAL)
+		then
+			[PROCESS_TABLE + 4 + 16 * id] = READY;
+		endif;
+		id = id + 1;
+	endwhile;
+	R0 = 0;
+	breakpoint;
+endif;
+return;

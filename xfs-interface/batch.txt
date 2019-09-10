@@ -1,0 +1,9 @@
+load --os /root/Desktop/myexpos/Assignments/Stage15:Assign1/os_startup.xsm
+load --init /root/Desktop/myexpos/Assignments/Stage15:Assign1/1_100odd.xsm
+load --int=timer /root/Desktop/myexpos/Assignments/Stage15:Assign1/timer.xsm
+load --int=7 /root/Desktop/myexpos/Assignments/Stage15:Assign1/sample_int7.xsm
+load --int=10 /root/Desktop/myexpos/Assignments/Stage15:Assign1/haltprog.xsm
+load --module 0 /root/Desktop/myexpos/Assignments/Stage15:Assign1/MOD_0.xsm
+load --module 4 /root/Desktop/myexpos/Assignments/Stage15:Assign1/MOD_4.xsm
+load --module 7 /root/Desktop/myexpos/Assignments/Stage15:Assign1/boot_module.xsm
+load --module 5 /root/Desktop/myexpos/Assignments/Stage15:Assign1/sched_module.xsm
