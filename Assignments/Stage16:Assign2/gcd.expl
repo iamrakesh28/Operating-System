@@ -1,0 +1,25 @@
+int main()
+{
+	decl
+	int a, b, ret;
+	str string;
+	enddecl
+	begin
+		string = "1st No. :";
+		ret = exposcall("Write", -2, string);
+		read(a);
+		
+		//ret = exposcall("Read", -1, &a);
+		string = "2nd No. :";
+		ret = exposcall("Write", -2, string);
+		read(b);
+		//ret = exposcall("Read", -1, &b);
+		while (b > 0) do
+			ret = a;
+			a = b;
+			b = ret % b;
+		endwhile;
+		ret = exposcall("Write", -2, a);
+		return 0;
+	end
+}

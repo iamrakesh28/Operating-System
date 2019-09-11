@@ -1,0 +1,46 @@
+//Device Manager Module
+
+alias funcNum R1;
+alias currPID R2;
+
+// Write Terminal
+if (funcNum == 3)
+then
+	// Acquire
+	alias word R3;
+	multipush(R1, R2, R3);
+	R1 = 8;
+	R2 = currPID;
+	call MOD_0;
+	multipop(R1, R2, R3);
+	print word;
+	// Release
+	multipush(R1, R2, R3);
+	R1 = 9;
+	R2 = currPID;
+	call MOD_0;
+	multipop(R1, R2, R3);
+	return;
+endif;
+
+// Read Terminal
+if (funcNum == 4)
+then
+	// Acquire
+	alias word_add R3;
+	multipush(R1, R2, R3);
+	R1 = 8;
+	R2 = currPID;
+	call MOD_0;
+	multipop(R1, R2, R3);
+	read;
+	[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 4] = WAIT_TERMINAL;
+	multipush(R1, R2, R3);
+	call MOD_7;
+	multipop(R1, R2, R3);
+	alias phy R4;
+	phy = [PTBR + 2 * (word_add / 512)] * 512 + word_add % 512;
+	[phy] = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 8];
+	return;
+endif;
+return;
