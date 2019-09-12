@@ -1,6 +1,6 @@
 load --os /root/Desktop/myexpos/Assignments/Stage16:Assign1/os_startup.xsm
 load --library /root/Desktop/myexpos/expl/library.lib
-load --init /root/Desktop/myexpos/Assignments/Stage16:Assign1/gcd.xsm
+load --init /root/Desktop/myexpos/Assignments/Stage16:Assign1/sort.xsm
 load --idle /root/Desktop/myexpos/Assignments/Stage16:Assign1/idle.xsm
 load --int=timer /root/Desktop/myexpos/Assignments/Stage16:Assign1/timer.xsm
 load --int=7 /root/Desktop/myexpos/Assignments/Stage16:Assign1/sample_int7.xsm

@@ -1,39 +1,44 @@
+decl
+	int a[10];
+enddecl
+
 int main()
 {
 	decl
-	int N, ret, j, temp, a[10];
+	int N, ret, i, j, temp;
 	str string;
 	enddecl
 	begin
 		string = "Enter N (<10)";
 		ret = exposcall("Write", -2, string);
-		read(N);
-		
-		//ret = exposcall("Read", -1, &a);
-		string = "Enter Elements :";
+		ret = exposcall("Read", -1, N);
+		string = "Enter Nos";
 		ret = exposcall("Write", -2, string);
-		ret = 0;
-		while (ret < N) do
-			read(a[ret]);
-			ret = ret + 1;
+		string = "Sorted: ";
+		i = 0;
+		while (i < N) do
+			ret = exposcall("Read", -1, a[i]);
+			i = i + 1;
 		endwhile;
-		//ret = exposcall("Read", -1, &b);
-		ret = 0;
-		while (ret < N - 1) do
-			j = ret;
-			while (j < N - 1) do
+		i = 0;
+		while (i < (N - 1)) do
+			j = 0;
+			while (j < (N - i - 1)) do
 				if (a[j] > a[j + 1])
 				then
 					temp = a[j];
 					a[j] = a[j + 1];
 					a[j + 1] = temp;
 				endif;
+				j = j + 1;
 			endwhile;
+			i = i + 1;
 		endwhile;
-		ret = 0;
-		while (ret < N) do
-			write(a[ret]);
-			ret = ret + 1;
+		i = 0;
+		ret = exposcall("Write", -2, "Sorted");
+		while (i < N) do
+			ret = exposcall("Write", -2, a[i]);
+			i = i + 1;
 		endwhile;
 		return 0;
 	end

@@ -1,0 +1,40 @@
+int main()
+{
+	decl
+	int N, ret, j, temp, a[10];
+	str string;
+	enddecl
+	begin
+		string = "Enter N (<10)";
+		ret = exposcall("Write", -2, string);
+		read(N);
+		
+		//ret = exposcall("Read", -1, &a);
+		string = "Enter Elements :";
+		ret = exposcall("Write", -2, string);
+		ret = 0;
+		while (ret < N) do
+			read(a[ret]);
+			ret = ret + 1;
+		endwhile;
+		//ret = exposcall("Read", -1, &b);
+		ret = 0;
+		while (ret < N - 1) do
+			j = ret;
+			while (j < N - 1) do
+				if (a[j] > a[j + 1])
+				then
+					temp = a[j];
+					a[j] = a[j + 1];
+					a[j + 1] = temp;
+				endif;
+			endwhile;
+		endwhile;
+		ret = 0;
+		while (ret < N) do
+			write(a[ret]);
+			ret = ret + 1;
+		endwhile;
+		return 0;
+	end
+}
