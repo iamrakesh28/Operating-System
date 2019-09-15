@@ -1,0 +1,52 @@
+// Memory Manager Module
+
+alias func R1;
+alias page R2;
+
+if (func == 1)
+then
+	[SYSTEM_STATUS_TABLE + 3] = [SYSTEM_STATUS_TABLE + 3] + 1;
+	alias mem R3;
+	mem = [SYSTEM_STATUS_TABLE + 2];
+	while (mem == 0) do
+		[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 4] = WAIT_MEM;
+		multipush(R1, R2, R3);
+		call MOD_5;
+		multipop(R1, R2, R3);
+		mem = [SYSTEM_STATUS_TABLE + 2];
+	endwhile;
+	[SYSTEM_STATUS_TABLE + 3] = [SYSTEM_STATUS_TABLE + 3] - 1;
+	[SYSTEM_STATUS_TABLE + 2] = [SYSTEM_STATUS_TABLE + 2] - 1;
+	alias id R4;
+	id = 0;
+	while (id < MAX_MEM_PAGE) do
+		if ([MEMORY_FREE_LIST + id] == 0)
+		then
+			R0 = id;
+			[MEMORY_FREE_LIST + id] = 1;
+			break;
+		endif;
+		id = id + 1;
+	endwhile;
+	return;
+endif;
+
+// Release Page
+if (func == 2)
+then
+	alias id R3;
+	[MEMORY_FREE_LIST + page] = [MEMORY_FREE_LIST + page] - 1;
+	if ([MEMORY_FREE_LIST + page] == 0)
+	then
+		[SYSTEM_STATUS_TABLE + 2] = [SYSTEM_STATUS_TABLE + 2] + 1;
+		id = 1;
+		while (id < 10) do
+			if ([PROCESS_TABLE + id * 16 + 4] == WAIT_MEM)
+			then
+				[PROCESS_TABLE + id * 16 + 4] = READY;
+			endif;
+			id = id + 1;
+		endwhile;
+	endif;
+	return;
+endif;
