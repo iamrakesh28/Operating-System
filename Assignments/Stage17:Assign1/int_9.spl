@@ -50,7 +50,7 @@ else
 
 	// name -> user page area
 	name = [PROCESS_TABLE + pid * 16 + 11];
-	[MEMORY_FREE_LIST + name] = 1;
+	[MEMORY_FREE_LIST + name] = [MEMORY_FREE_LIST + name] + 1;
 	SP = name * 512 - 1;
 
 	[PROCESS_TABLE + pid * 16 + 4] = RUNNING;
@@ -71,7 +71,7 @@ else
 	page = R0;
 	multipop(R0, R1, R2, R3, R4, R5, R6, R7);
 	[PTBR + 4] = page;
-	[PTBR + 5] = "0100";
+	[PTBR + 5] = "0110";
 
 	
 	multipush(R0, R1, R2, R3, R4, R5, R6, R7);
@@ -81,7 +81,7 @@ else
 	page = R0;
 	multipop(R0, R1, R2, R3, R4, R5, R6, R7);
 	[PTBR + 6] = page;
-	[PTBR + 7] = "0100";
+	[PTBR + 7] = "0110";
 	
 	multipush(R0, R1, R2, R3, R4, R5, R6, R7);
 	R1 = 1;
@@ -90,7 +90,7 @@ else
 	page = R0;
 	multipop(R0, R1, R2, R3, R4, R5, R6, R7);
 	[PTBR + 16] = page;
-	[PTBR + 17] = "0100";
+	[PTBR + 17] = "0110";
 
 	
 	multipush(R0, R1, R2, R3, R4, R5, R6, R7);
@@ -100,7 +100,7 @@ else
 	page = R0;
 	multipop(R0, R1, R2, R3, R4, R5, R6, R7);
 	[PTBR + 18] = page;
-	[PTBR + 19] = "0100";
+	[PTBR + 19] = "0110";
 
 	//breakpoint;
 	alias cnt R9;
@@ -133,6 +133,7 @@ else
 endif;
 
 SP = 8 * 512;
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13] = SP;
 breakpoint;
 [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
 ireturn;

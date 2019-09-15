@@ -1,0 +1,16 @@
+load --os /root/Desktop/myexpos/Assignments/Stage17:Assign2/os_startup.xsm
+load --library /root/Desktop/myexpos/expl/library.lib
+load --init /root/Desktop/myexpos/Assignments/Stage17:Assign2/1_100odd.xsm
+load --idle /root/Desktop/myexpos/Assignments/Stage17:Assign2/idle.xsm
+load --int=timer /root/Desktop/myexpos/Assignments/Stage17:Assign2/timer.xsm
+load --int=7 /root/Desktop/myexpos/Assignments/Stage17:Assign2/sample_int7.xsm
+load --int=6 /root/Desktop/myexpos/Assignments/Stage17:Assign2/int_6.xsm
+load --int=console /root/Desktop/myexpos/Assignments/Stage17:Assign2/console_interr.xsm
+load --int=10 /root/Desktop/myexpos/Assignments/Stage17:Assign2/haltprog.xsm
+load --module 0 /root/Desktop/myexpos/Assignments/Stage17:Assign2/MOD_0.xsm
+load --module 4 /root/Desktop/myexpos/Assignments/Stage17:Assign2/MOD_4.xsm
+load --module 7 /root/Desktop/myexpos/Assignments/Stage17:Assign2/boot_module.xsm
+load --module 5 /root/Desktop/myexpos/Assignments/Stage17:Assign2/sched_module.xsm
+load --module 1 /root/Desktop/myexpos/Assignments/Stage17:Assign2/MOD_1.xsm
+load --module 2 /root/Desktop/myexpos/Assignments/Stage17:Assign2/MOD_2.xsm
+load --int=9 /root/Desktop/myexpos/Assignments/Stage17:Assign2/int_9.xsm

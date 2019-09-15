@@ -1,0 +1,58 @@
+// Process Manager Module
+
+alias func R1;
+alias pid R2;
+
+// Free user area page
+if (func == 2)
+then
+	alias page R3;
+	page = [PROCESS_TABLE + pid * 16 + 11];
+	multipush(R1, R2, R3);
+	R1 = 2;
+	R2 = page;
+	call MOD_2;
+	multipop(R1, R2, R3);
+	return;
+endif;
+
+// Exit process
+if (func == 3)
+then
+	multipush(R1, R2);
+	R1 = 4;
+	call MOD_1;
+	multipop(R1, R2);
+
+	multipush(R1, R2);
+	R1 = 2;
+	call MOD_1;
+	multipop(R1, R2);
+	[PROCESS_TABLE + pid * 16 + 4] = TERMINATED;
+	return;
+endif;
+
+// Free Page Table
+if (func == 4)
+then
+	alias entry R3;
+	alias page R4;
+	entry = 0;
+	while (entry < 10) do
+		page = [PTBR + 2 * entry];
+		[PTBR + 2 * entry] = -1;
+		[PTBR + 2 * entry + 1] = "0000";
+		if (entry < 2)
+		then
+			entry = entry + 1;
+			continue;
+		endif;
+		multipush(R1, R2, R3, R4);
+		R1 = 2;
+		R2 = page;
+		call MOD_2;
+		multipop(R1, R2, R3, R4);
+		entry = entry + 1;
+	endwhile;
+	return;
+endif;
