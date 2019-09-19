@@ -1,0 +1,14 @@
+./spl $HOME/myexpos/Assignments/Stage19:Assign1/sched_module.spl
+./spl $HOME/myexpos/Assignments/Stage19:Assign1/timer.spl
+./spl $HOME/myexpos/Assignments/Stage19:Assign1/boot_module.spl
+./spl $HOME/myexpos/Assignments/Stage19:Assign1/haltprog.spl
+./spl $HOME/myexpos/Assignments/Stage19:Assign1/sched_module.spl
+./spl $HOME/myexpos/Assignments/Stage19:Assign1/os_startup.spl
+./spl $HOME/myexpos/Assignments/Stage19:Assign1/MOD_0.spl
+./spl $HOME/myexpos/Assignments/Stage19:Assign1/MOD_4.spl
+./spl $HOME/myexpos/Assignments/Stage19:Assign1/sample_int7.spl
+./spl $HOME/myexpos/Assignments/Stage19:Assign1/console_interr.spl
+./spl $HOME/myexpos/Assignments/Stage19:Assign1/int_6.spl
+./spl $HOME/myexpos/Assignments/Stage19:Assign1/MOD_1.spl
+./spl $HOME/myexpos/Assignments/Stage19:Assign1/MOD_2.spl
+./spl $HOME/myexpos/Assignments/Stage19:Assign1/int_9.spl

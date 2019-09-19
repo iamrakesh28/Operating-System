@@ -1,0 +1,15 @@
+int main()
+{
+	decl
+	int i, ret;
+	enddecl
+	begin
+		i = 1;
+		//breakpoint;
+		while (i < 100) do
+			ret = exposcall("Write", -2, i);
+			i = i + 2;
+		endwhile;
+		return 0;
+	end
+}
