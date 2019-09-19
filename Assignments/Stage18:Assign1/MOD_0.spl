@@ -10,11 +10,14 @@ then
 	//breakpoint;
 	alias status R3;
 	status = [DISK_STATUS_TABLE];
-	if (status == 1)
-	then
+	while (status == 1)
+	do
 		[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 4] = WAIT_DISK;
+		multipush(R1, R2, R3);
 		call MOD_5;
-	endif;
+		multipop(R1, R2, R3);
+		status = [DISK_STATUS_TABLE];
+	endwhile;
 	[DISK_STATUS_TABLE] = 1;
 	[DISK_STATUS_TABLE + 4] = currPID;
 	return;
@@ -26,13 +29,14 @@ then
 	//breakpoint;
 	alias status R4;
 	status = [TERMINAL_STATUS_TABLE];
-	if (status == 1)
-	then
+	while (status == 1)
+	do
 		[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 4] = WAIT_TERMINAL;
 		multipush(R1, R2, R4);
 		call MOD_5;
 		multipop(R1, R2, R4);
-	endif;
+		status = [TERMINAL_STATUS_TABLE];
+	endwhile;
 	[TERMINAL_STATUS_TABLE] = 1;
 	[TERMINAL_STATUS_TABLE + 1] = currPID;
 	//breakpoint;

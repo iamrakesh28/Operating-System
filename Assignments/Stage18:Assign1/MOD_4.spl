@@ -21,8 +21,10 @@ then
 	
 	load(page, block);
 	[PROCESS_TABLE + currPID * 16 + 4] = WAIT_DISK;
+	multipush(R1, R2, R3, R4);
 	call MOD_5;
-	//return;
+	multipop(R1, R2, R3, R4);
+	return;
 endif;
 
 // Write Terminal
