@@ -71,6 +71,7 @@ else
 	
 	[PTBR + 6] = -1;
 	[PTBR + 7] = "0000";
+
 	
 	multipush(R0, R5, R6, R7);
 	R1 = 1;
@@ -90,41 +91,33 @@ else
 	multipop(R0, R5, R6, R7);
 	[PTBR + 18] = page;
 	[PTBR + 19] = "0110";
-
-	//breakpoint;
+	breakpoint;
 	alias cnt R9;
 	alias block R10;
 	cnt = 0;
 	while (cnt < 4) do
 		if ([INODE_TABLE + id * 16 + 8 + cnt] == -1)
 		then
-			[DISK_MAP_TABLE + id * 16 + 4 + cnt] = -1;
+			[DISK_MAP_TABLE + id * 10 + 4 + cnt] = -1;
+			cnt = cnt + 1;
 			continue;
 		endif;
 
 		block = [INODE_TABLE + id * 16 + 8 + cnt];
-
 		multipush(R0, R5, R6, R7, R9, R10);
 		R1 = 5;
+		R2 = block;
 		// memory module (GET_CODE_PAGE)
 		call MOD_2;
 		page = R0;
 		multipop(R0, R5, R6, R7, R9, R10);
 		[PTBR + (4 + cnt) * 2] = page;
 		[PTBR + (4 + cnt) * 2 + 1] = "0100";
-		[DISK_MAP_TABLE + id * 16 + 4 + cnt] = block;
-		multipush(R0, R5, R6, R7, R9, R10);
-		R1 = 2;
-		R2 = pid;
-		R3 = page;
-		R4 = block;
-		call MOD_4;
-		multipop(R0, R5, R6, R7, R9, R10);
-		//breakpoint;
+		[DISK_MAP_TABLE + id * 10 + 4 + cnt] = block;
 		cnt = cnt + 1;
+
 	endwhile;
 	// per process resource table
-
 	alias per_page R1;
 	per_page = [PROCESS_TABLE + pid * 16 + 11];
 	per_page = per_page * 512 + 512 - 1;
@@ -142,6 +135,5 @@ endif;
 
 SP = 8 * 512;
 //[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13] = SP;
-//breakpoint;
 [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
 ireturn;

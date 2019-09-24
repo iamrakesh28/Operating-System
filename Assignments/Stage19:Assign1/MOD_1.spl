@@ -35,6 +35,7 @@ endif;
 // Free Page Table
 if (func == 4)
 then
+	breakpoint;
 	alias entry R3;
 	alias page R4;
 	entry = 0;

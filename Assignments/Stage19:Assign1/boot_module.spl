@@ -2,6 +2,9 @@
 loadi(63,13);
 loadi(64,14);
 
+// Disk Free List
+loadi(61, 2);
+
 // Init Program (odd program)
 loadi(65,7);
 loadi(66,8);
@@ -101,6 +104,20 @@ PTLR = 10;
 [PROCESS_TABLE + 13 + 16] = 8 * 512;
 [PROCESS_TABLE + 14 + 16] = PTBR;
 [PROCESS_TABLE + 15 + 16] = PTLR;
+
+// Disk Map Table for INIT
+
+[DISK_MAP_TABLE + 0 + 10] = -1;
+[DISK_MAP_TABLE + 1 + 10] = -1;
+[DISK_MAP_TABLE + 2 + 10] = -1;
+[DISK_MAP_TABLE + 3 + 10] = -1;
+[DISK_MAP_TABLE + 3 + 10] = 7;
+[DISK_MAP_TABLE + 4 + 10] = 8;
+[DISK_MAP_TABLE + 5 + 10] = -1;
+[DISK_MAP_TABLE + 6 + 10] = -1;
+[DISK_MAP_TABLE + 7 + 10] = -1;
+[DISK_MAP_TABLE + 8 + 10] = -1;
+[DISK_MAP_TABLE + 9 + 10] = -1;
 
 [76 * 512] = [65 * 512 + 1];
 
