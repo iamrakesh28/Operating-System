@@ -114,6 +114,7 @@ else
 		[PTBR + (4 + cnt) * 2] = page;
 		[PTBR + (4 + cnt) * 2 + 1] = "0100";
 		[DISK_MAP_TABLE + id * 10 + 4 + cnt] = block;
+		break;
 		cnt = cnt + 1;
 
 	endwhile;
