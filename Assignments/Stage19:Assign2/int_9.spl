@@ -35,6 +35,7 @@ if (found == 0)
 then
 	found = ([PTBR + 2 * ((userSP - 1) / 512)] * 512) + ((userSP - 1) % 512);
 	[found] = -1;
+	//ireturn;
 else
 	alias pid R7;
 	pid = [SYSTEM_STATUS_TABLE + 1];

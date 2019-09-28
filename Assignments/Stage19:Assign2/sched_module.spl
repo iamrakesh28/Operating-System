@@ -8,7 +8,6 @@ process_table_entry = PROCESS_TABLE + curPID * 16;
 [process_table_entry + 12] = SP % 512;
 [process_table_entry + 14] = PTBR;
 [process_table_entry + 15] = PTLR;
-
 alias cnt R1;
 alias state R2;
 cnt = 0;
@@ -23,7 +22,6 @@ while (cnt < 10) do
 	endif;
 	cnt = cnt + 1;
 endwhile;
-
 
 alias new_process R3;
 new_process = PROCESS_TABLE + curPID * 16;

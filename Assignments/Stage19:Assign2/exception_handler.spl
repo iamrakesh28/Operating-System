@@ -15,7 +15,17 @@ then
 	R2 = [SYSTEM_STATUS_TABLE + 1];
 	breakpoint;
 	call MOD_1;
-	call MOD_5;
+	alias id R3;
+	id = 1;
+	while (id < 10) do
+		if ([PROCESS_TABLE + id * 16 + 4] != TERMINATED)
+		then
+			call MOD_5;
+		endif;
+		id = id + 1;
+	endwhile;
+	halt;
+	//call MOD_5;
 	//return;
 endif;
 
