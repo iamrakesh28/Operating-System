@@ -1,0 +1,19 @@
+int main()
+{
+	decl
+	int ret;
+	str string;
+	enddecl
+	begin
+		ret = exposcall("Fork");
+		if (ret == 0)
+		then
+			string = "1_100odd.xsm";
+			ret = exposcall("Exec", string);
+		else
+			string = "1_100eve.xsm";
+			ret = exposcall("Exec", string);
+		endif;
+		return 0;
+	end
+}
