@@ -1,0 +1,58 @@
+type
+
+	Node {
+		int data;
+		Node next;
+	}
+
+endtype
+
+int main()
+{
+	decl
+		Node head, tail, newNode;
+		int n, ret, child;
+	enddecl
+
+	begin
+		ret = exposcall("Heapset");
+		tail = null;
+		head = null;
+		n = 1;
+		while (n <= 100) do
+			newNode = exposcall("Alloc", 2);
+			newNode.data = n;
+			newNode.next = null;
+
+			if (head == null) 
+			then
+				head = newNode;
+				tail = head;
+			else
+				tail.next = newNode;
+				tail = tail.next;
+			endif;
+			n = n + 1;
+		endwhile;
+
+		child = exposcall("Fork");
+		n = 0;
+		while (head != null) do
+			if (child == 0)
+			then
+				if ((n % 2) == 0)
+				then
+					ret = exposcall("Write", -2, head.data);
+				endif;
+			else
+				if ((n % 2) == 1)
+				then
+					ret = exposcall("Write", -2, head.data);
+				endif;
+			endif;
+			head = head.next;
+			n = n + 1;
+		endwhile;
+		return 0;
+	end
+}
