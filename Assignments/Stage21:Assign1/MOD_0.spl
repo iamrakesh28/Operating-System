@@ -1,0 +1,72 @@
+//Resource Manager Module
+
+alias funcNum R1;
+alias currPID R2;
+
+
+// Acquire Disk
+if (funcNum == 3)
+then
+	//breakpoint;
+	alias status R3;
+	status = [DISK_STATUS_TABLE];
+	while (status == 1)
+	do
+		[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 4] = WAIT_DISK;
+		multipush(R1, R2, R3);
+		call MOD_5;
+		multipop(R1, R2, R3);
+		status = [DISK_STATUS_TABLE];
+	endwhile;
+	[DISK_STATUS_TABLE] = 1;
+	[DISK_STATUS_TABLE + 4] = currPID;
+	return;
+endif;
+
+// Acquire Terminal
+if (funcNum == 8)
+then
+	//breakpoint;
+	alias status R4;
+	status = [TERMINAL_STATUS_TABLE];
+	while (status == 1)
+	do
+		[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 4] = WAIT_TERMINAL;
+		multipush(R1, R2, R4);
+		call MOD_5;
+		multipop(R1, R2, R4);
+		status = [TERMINAL_STATUS_TABLE];
+	endwhile;
+	[TERMINAL_STATUS_TABLE] = 1;
+	[TERMINAL_STATUS_TABLE + 1] = currPID;
+	//breakpoint;
+	return;
+endif;
+
+// Release Terminal
+if (funcNum == 9)
+then
+	//breakpoint;
+	alias pid R3;
+	pid = [TERMINAL_STATUS_TABLE + 1];
+	if (pid != currPID)
+	then
+		R0 = -1;
+		return;
+	endif;
+	[TERMINAL_STATUS_TABLE] = 0;
+	alias id R0;
+	id = 1;
+	while (id < 10) do
+		alias state R4;
+		state = [PROCESS_TABLE + 4 + 16 * id];
+		if (state == WAIT_TERMINAL)
+		then
+			[PROCESS_TABLE + 4 + 16 * id] = READY;
+		endif;
+		id = id + 1;
+	endwhile;
+	R0 = 0;
+	//breakpoint;
+endif;
+return;
