@@ -18,7 +18,7 @@ int main() {
 	int msgid;
 
 	// ftok generates unique key
-	key = ftok("/root/Desktop", 1);
+	key = ftok("/root/Desktop", 65);
 
 	// msgget creates a message queue and returns identifier
 	msgid = msgget(key, 0666 | IPC_CREAT);
