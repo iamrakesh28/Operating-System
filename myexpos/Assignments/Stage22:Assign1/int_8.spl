@@ -1,0 +1,171 @@
+// Fork Call number 8
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 8;
+[PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
+
+alias pcb R1;
+alias childId R2;
+pcb = 1;
+call MOD_1;
+childId = R0;
+
+if (childId == -1) then
+	[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+	SP = [PROCESS_TABLE + 16 * [SYSTEM_STATUS_TABLE + 1] + 13];
+	[[PTBR + 2 * ((SP - 1) / 512)] * 512 + (SP - 1) % 512] = -1;
+	ireturn;
+endif;
+
+alias page R1;
+alias parentId R3;
+parentId = [SYSTEM_STATUS_TABLE + 1];
+
+if ([PTBR + 4] == -1)
+then
+	// heap allocation
+	multipush(R2, R3);
+	R1 = 1;
+	// memory module
+	call MOD_2;
+	page = R0;
+	multipop(R2, R3);
+	[PTBR + 4] = page;
+	[PTBR + 5] = "1110";
+
+	multipush(R2, R3);
+	R1 = 1;
+	// memory module
+	call MOD_2;
+	page = R0;
+	multipop(R2, R3);
+	[PTBR + 6] = page;
+	[PTBR + 7] = "1110";
+
+endif;
+
+// User page, stack pages
+
+//user page
+multipush(R2, R3);
+R1 = 1;
+// memory module
+call MOD_2;
+page = R0;
+multipop(R2, R3);
+
+[PROCESS_TABLE + childId * 16 + 11] = page;
+
+alias ptbr R7;
+ptbr = [PROCESS_TABLE + childId * 16 + 14];
+// stack pages	
+multipush(R2, R3, R7);
+R1 = 1;
+// memory module
+call MOD_2;
+page = R0;
+multipop(R2, R3, R7);
+[ptbr + 18] = page;
+
+multipush(R2, R3, R7);
+R1 = 1;
+// memory module
+call MOD_2;
+page = R0;
+multipop(R2, R3, R7);
+[ptbr + 16] = page;
+
+
+[PROCESS_TABLE + childId * 16 + 3] = [PROCESS_TABLE + parentId * 16 + 3];
+[PROCESS_TABLE + childId * 16 + 6] = [PROCESS_TABLE + parentId * 16 + 6];
+[PROCESS_TABLE + childId * 16 + 10] = [PROCESS_TABLE + parentId * 16 + 10];
+[PROCESS_TABLE + childId * 16 + 7] = [PROCESS_TABLE + parentId * 16 + 7];
+[PROCESS_TABLE + childId * 16 + 13] = [PROCESS_TABLE + parentId * 16 + 13];
+
+// mode, kptr, tick
+[PROCESS_TABLE + childId * 16 + 9] = 0;
+[PROCESS_TABLE + childId * 16 + 0] = 0;
+
+[PROCESS_TABLE + childId * 16 + 2] = parentId;
+[PROCESS_TABLE + childId * 16 + 4] = CREATED;
+[PROCESS_TABLE + childId * 16 + 12] = 0;
+
+// per-process resource table
+
+alias per_page_child R4;
+alias per_page_par R5;
+per_page_child = [PROCESS_TABLE + childId * 16 + 11];
+per_page_child = per_page_child * 512 + 512 - 1;
+per_page_par = [PROCESS_TABLE + parentId * 16 + 11];
+per_page_par = per_page_par * 512 + 512 - 1;
+
+alias cnt R6;
+cnt = 0;
+while (cnt < 8) do
+	[per_page_child] = [per_page_par];
+	[per_page_child - 1] = [per_page_par - 1];
+	if ([per_page_par - 1] == SEMAPHORE) then
+		[SEMAPHORE_TABLE + [per_page_par]] = [SEMAPHORE_TABLE + [per_page_par]] + 1;
+	endif;
+	per_page_child = per_page_child - 2;
+	per_page_par = per_page_par - 2;
+	cnt = cnt + 1;
+endwhile;
+
+cnt = 0;
+while (cnt < 10) do
+	[DISK_MAP_TABLE + childId * 10 + cnt] = [DISK_MAP_TABLE + parentId * 10 + cnt];
+	cnt = cnt + 1;
+endwhile;
+
+cnt = 0;
+while (cnt < 16) do
+	[ptbr + cnt] = [PTBR + cnt];
+	cnt = cnt + 1;
+endwhile;
+
+[ptbr + 19] = [PTBR + 19];
+[ptbr + 17] = [PTBR + 17];
+
+// Memory free list
+
+cnt = 0;
+while (cnt < 8) do
+	[MEMORY_FREE_LIST + [PTBR + 2 * cnt]] = [MEMORY_FREE_LIST + [PTBR + 2 * cnt]] + 1;
+	cnt = cnt + 1;
+endwhile;
+
+alias userSP R4;
+alias addParSP R5;
+alias addChildSP R8;
+alias finalSP R6;
+
+userSP = 8 * 512;
+finalSP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+
+// stack copy
+while (userSP <= finalSP) do
+	addParSP = [PTBR + 2 * (userSP / 512)] * 512 + userSP % 512;
+	addChildSP = [ptbr + 2 * (userSP / 512)] * 512 + userSP % 512;
+	[addChildSP] = [addParSP];
+	userSP = userSP + 1;
+endwhile;
+
+userSP = [PROCESS_TABLE + childId * 16 + 11] * 512 - 1;
+userSP = userSP + 1;
+[userSP] = BP;
+
+[PROCESS_TABLE + childId * 16 + 12] = userSP;
+
+alias childSP R4;
+alias parSP R5;
+
+childSP = [PROCESS_TABLE + childId * 16 + 13];
+parSP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+
+[[ptbr + 2 * ((childSP - 1) / 512)] * 512 + (childSP - 1) % 512] = 0;
+[[PTBR + 2 * ((parSP - 1) / 512)] * 512 + (parSP - 1) % 512] = childId;
+
+SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+breakpoint;
+ireturn;

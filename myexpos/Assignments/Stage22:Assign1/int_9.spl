@@ -1,0 +1,147 @@
+// System Call number 9
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 9;
+alias userSP R0;
+userSP = SP;
+[PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
+alias PhyPage R1;
+alias offset R2;
+alias filePhyAdd R3;
+PhyPage = [PTBR + 2 * ((userSP - 4) / 512)];
+offset = (userSP - 4) % 512;
+filePhyAdd = (PhyPage * 512) + offset;
+alias filename R4;
+filename = [filePhyAdd];
+alias found R5;
+found = 0;
+alias id R6;
+id = 0;
+
+alias type R7;
+alias name R8;
+
+while (id < MAX_FILE_NUM) do
+	type = [INODE_TABLE + id * 16];
+	name = [INODE_TABLE + id * 16 + 1];
+	if ((type == EXEC) && (name == filename))
+	then
+		found = 1;
+		break;
+	endif;
+	id = id + 1;
+endwhile;
+
+if (found == 0)
+then
+	found = ([PTBR + 2 * ((userSP - 1) / 512)] * 512) + ((userSP - 1) % 512);
+	[found] = -1;
+	SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+	//ireturn;
+else
+	alias pid R7;
+	pid = [SYSTEM_STATUS_TABLE + 1];
+	multipush(R0, R5, R6, R7);
+	R1 = 3;
+	R2 = pid;
+	// Process Manager
+	call MOD_1;
+	
+	multipop(R0, R5, R6, R7);
+	[SYSTEM_STATUS_TABLE + 2] = [SYSTEM_STATUS_TABLE + 2] - 1;
+
+
+	// name -> user page area
+	name = [PROCESS_TABLE + pid * 16 + 11];
+	[MEMORY_FREE_LIST + name] = [MEMORY_FREE_LIST + name] + 1;
+	SP = name * 512 - 1;
+
+	[PROCESS_TABLE + pid * 16 + 4] = RUNNING;
+	// inode index
+	[PROCESS_TABLE + pid * 16 + 7] = id;
+
+	//Library
+	[PTBR + 0] = 63;
+	[PTBR + 1] = "0100";
+	[PTBR + 2] = 64;
+	[PTBR + 3] = "0100";
+
+	alias page R8;
+	// heap allocation
+	[PTBR + 4] = -1;
+	[PTBR + 5] = "0000";
+
+	
+	[PTBR + 6] = -1;
+	[PTBR + 7] = "0000";
+
+	
+	multipush(R0, R5, R6, R7);
+	R1 = 1;
+	// memory module
+	call MOD_2;
+	page = R0;
+	multipop(R0, R5, R6, R7);
+	[PTBR + 16] = page;
+	[PTBR + 17] = "1110";
+
+	
+	multipush(R0, R5, R6, R7);
+	R1 = 1;
+	// memory module
+	call MOD_2;
+	page = R0;
+	multipop(R0, R5, R6, R7);
+	[PTBR + 18] = page;
+	[PTBR + 19] = "1110";
+	//breakpoint;
+	alias cnt R9;
+	alias block R10;
+	cnt = 0;
+	while (cnt < 4) do
+		if ([INODE_TABLE + id * 16 + 8 + cnt] == -1)
+		then
+			[DISK_MAP_TABLE + id * 10 + 4 + cnt] = -1;
+			cnt = cnt + 1;
+			continue;
+		endif;
+
+		block = [INODE_TABLE + id * 16 + 8 + cnt];
+		[DISK_MAP_TABLE + [SYSTEM_STATUS_TABLE + 1] * 10 + 4 + cnt] = block;
+		if (cnt > 0) then
+			cnt = cnt + 1;
+			continue;
+		endif;
+		multipush(R0, R5, R6, R7, R9, R10);
+		R1 = 5;
+		R2 = block;
+		// memory module (GET_CODE_PAGE)
+		call MOD_2;
+		page = R0;
+		multipop(R0, R5, R6, R7, R9, R10);
+		[PTBR + (4 + cnt) * 2] = page;
+		[PTBR + (4 + cnt) * 2 + 1] = "0100";
+		//break;
+		cnt = cnt + 1;
+
+	endwhile;
+	// per process resource table
+	alias per_page R1;
+	per_page = [PROCESS_TABLE + pid * 16 + 11];
+	per_page = per_page * 512 + 512 - 1;
+	cnt = 0;
+	while (cnt < 16) do
+		[per_page] = -1;
+		per_page = per_page - 1;
+		cnt = cnt + 1;
+	endwhile;
+	[[PTBR + 16] * 512] = [[PTBR + 8] * 512 + 1];
+	//breakpoint;
+	found = ([PTBR + 2 * ((userSP - 1) / 512)] * 512) + ((userSP - 1) % 512);
+	[found] = 0;
+	SP = 8 * 512;
+endif;
+
+//[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13] = SP;
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+breakpoint;
+ireturn;
