@@ -84,7 +84,7 @@ then
 		R0 = -1;
 	else
 		[SEMAPHORE_TABLE + 4 * entry + 1] = 1;
-		//[SEMAPHORE_TABLE + 4 * entry] = currPID;
+		[SEMAPHORE_TABLE + 4 * entry] = -1;
 		R0 = entry;
 	endif;
 endif;
@@ -95,7 +95,7 @@ then
 	alias semid R4;
 	semid = currPID;
 	alias pid R3;
-	if ([SEMAPHORE_TABLE + 4 * semid] == currPID) then
+	if ([SEMAPHORE_TABLE + 4 * semid] == pid) then
 		[SEMAPHORE_TABLE + 4 * semid] = -1;
 		alias entry R5;
 		entry = 1;
