@@ -1,0 +1,80 @@
+alias userSP R0;
+userSP = SP;
+[PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
+alias PhyPage R1;
+alias offset R2;
+alias SysCallAdd R3;
+PhyPage = [PTBR + 2 * ((userSP - 5) / 512)];
+offset = (userSP - 5) % 512;
+SysCallAdd = (PhyPage * 512) + offset;
+alias SysCall R4;
+SysCall = [SysCallAdd];
+
+// Getpid
+if (SysCall == 11)
+then
+	[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 11;
+	[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = [SYSTEM_STATUS_TABLE + 1];
+endif;
+
+// Getppid
+if (SysCall == 12)
+then
+	[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 12;
+	alias ppid R3;
+	ppid = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 2];
+	[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = ppid;
+endif;
+
+// Wait
+if (SysCall == 13)
+then
+	[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 13;
+	alias pid R5;
+	PhyPage = [PTBR + 2 * ((userSP - 4) / 512)];
+	offset = (userSP - 4) % 512;
+	pid = [PhyPage * 512 + offset];
+	if ((pid < 0) || (pid >= 16) || ([PROCESS_TABLE + pid * 16 + 4] == TERMINATED))
+	then
+		PhyPage = [PTBR + 2 * ((userSP - 1) / 512)];
+		offset = (userSP - 1) % 512;
+		[PhyPage * 512 + offset] = -1;
+		SP = userSP;
+		[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+		ireturn;
+	endif;
+
+	[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 4] = WAIT_PROCESS;
+	[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 5] = pid;
+	multipush(R0);
+	call MOD_5;
+	multipop(R0);
+	[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = 0;
+
+endif;
+
+// Signal
+if (SysCall == 14)
+then
+	[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 14;
+	alias pid R1;
+	pid = [SYSTEM_STATUS_TABLE + 1];
+	alias cnt R2;
+	cnt = 1;
+	alias state R7;
+	while (cnt < 16) do
+		state = PROCESS_TABLE + cnt * 16 + 4;
+		if (([state + 1] == WAIT_PROCESS) && ([state + 1] == pid))
+		then
+			[PROCESS_TABLE + cnt * 16 + 4] = READY;
+		endif;
+		cnt = cnt + 1;
+	endwhile;
+	[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = 0;
+	
+endif;
+
+SP = userSP;
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+ireturn;

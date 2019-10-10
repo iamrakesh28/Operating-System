@@ -1,0 +1,21 @@
+//breakpoint;
+[PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
+backup;
+[DISK_STATUS_TABLE] = 0;
+
+alias id R1;
+id = 1;
+while (id < 10) do
+	alias status R2;
+	status = [PROCESS_TABLE + 16 * id + 4];
+	if (status == WAIT_DISK)
+	then
+		[PROCESS_TABLE + 16 * id + 4] = READY;
+	endif;
+	id = id + 1;
+endwhile;
+restore;
+SP = [PROCESS_TABLE + 16 * [SYSTEM_STATUS_TABLE + 1] + 13];
+//breakpoint;
+ireturn;

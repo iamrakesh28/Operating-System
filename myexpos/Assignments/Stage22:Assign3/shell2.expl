@@ -1,0 +1,33 @@
+int main() {
+
+	decl
+	int ret, pid;
+	string input;
+	enddecl
+	begin
+		while (1 == 1) do
+			ret = exposcall("Write", -2, "$");
+			ret = exposcall("Read", -1, input);
+			if (input != "Shutdown") then
+				pid = exposcall("Fork");
+				if (pid < 0) then
+					ret = exposcall("Write", -2, "Fork Failure");
+					continue;
+				endif;
+				if (pid != 0) then
+					ret = exposcall("Wait", pid);
+				else
+					ret = exposcall("Exec", input);
+					if (ret != 0) then
+						ret = exposcall("Write", -2, "Invalid Command");
+						break;
+					endif;
+				endif;
+			else
+				ret = exposcall("Shutdown");
+				break;
+			endif;
+		endwhile;
+		return 0;
+	end
+}

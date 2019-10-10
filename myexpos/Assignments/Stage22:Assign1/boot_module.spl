@@ -169,6 +169,13 @@ endwhile;
 alias per R1;
 per = 81 * 512 - 1;
 id = 0;
+while (id < MAX_SEM_COUNT) do
+	[SEMAPHORE_TABLE + 4 * id] = -1;
+	[SEMAPHORE_TABLE + 4 * id + 1] = 0;
+	id = id + 1;
+endwhile;
+
+id = 0;
 while (id < 8) do
 	[per - 1] = -1;
 	[per] = 0;
