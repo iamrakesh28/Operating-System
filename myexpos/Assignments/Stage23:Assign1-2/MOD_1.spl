@@ -1,0 +1,135 @@
+// Process Manager Module
+
+alias func R1;
+alias pid R2;
+
+// Get PCB Entry
+if (func == 1)
+then
+	pid = 0;
+	R0 = -1;
+	while (pid < 16) do
+		if ([PROCESS_TABLE + pid * 16 + 4] == TERMINATED)
+		then
+			[PROCESS_TABLE + pid * 16 + 4] = ALLOCATED;
+			[PROCESS_TABLE + pid * 16 + 14] = PAGE_TABLE_BASE + 20 * pid;
+			[PROCESS_TABLE + pid * 16 + 15] = 10;
+			R0 = pid;
+			break;
+		endif;
+		pid = pid + 1;
+	endwhile;
+	return;
+endif;
+
+// Free user area page
+if (func == 2)
+then
+	alias page R3;
+	page = [PROCESS_TABLE + pid * 16 + 11];
+
+	// Releasing Semaphore
+	alias entry R4;
+	alias user R5;
+	user = page * 512 + 512;
+	entry = 0;
+	while (entry < 8) do
+		if ([user - 2 * entry - 2] != -1) then
+			multipush(R1, R2, R3, R4, R5);
+			R1 = 7;
+			R2 = [user - 2 * entry - 1];
+			R3 = pid;
+			call MOD_0;
+			multipop(R1, R2, R3, R4, R5);
+		endif;
+		entry = entry + 1;
+	endwhile;
+
+	multipush(R1, R2, R3);
+	R1 = 2;
+	R2 = page;
+	call MOD_2;
+	multipop(R1, R2, R3);
+
+	return;
+endif;
+
+// Exit process
+if (func == 3)
+then
+	multipush(R1, R2);
+	R1 = 4;
+	call MOD_1;
+	multipop(R1, R2);
+
+	multipush(R1, R2);
+	R1 = 2;
+	call MOD_1;
+	multipop(R1, R2);
+	[PROCESS_TABLE + pid * 16 + 4] = TERMINATED;
+	
+	if ([PROCESS_TABLE + pid * 16 + 9] != 9)
+	then
+		alias cnt R3;
+		cnt = 1;
+		alias state R4;
+		while (cnt < 16) do
+			state = PROCESS_TABLE + cnt * 16 + 4;
+			if (([state] == WAIT_PROCESS) && [state + 1] == pid)
+			then
+				[PROCESS_TABLE + cnt * 16 + 4] = READY;
+			endif;
+
+			if ([PROCESS_TABLE + cnt * 16 + 2] == pid)
+			then
+				[PROCESS_TABLE + cnt * 16 + 2] = -1;
+			endif;
+			cnt = cnt + 1; 
+		endwhile;
+	endif;
+	return;
+endif;
+
+// Free Page Table
+if (func == 4)
+then
+	breakpoint;
+	alias entry R3;
+	alias page R4;
+	entry = 0;
+	while (entry < 10) do
+		page = [PTBR + 2 * entry];
+		[PTBR + 2 * entry] = -1;
+		[PTBR + 2 * entry + 1] = "0000";
+		if (entry < 2)
+		then
+			entry = entry + 1;
+			continue;
+		endif;
+		multipush(R1, R2, R3, R4);
+		R1 = 2;
+		R2 = page;
+		call MOD_2;
+		multipop(R1, R2, R3, R4);
+
+		if ((entry < 8) && (entry > 3))
+		then
+			[DISK_MAP_TABLE + pid * 10 + entry] = -1;
+			entry = entry + 1;
+			continue;
+		endif;
+
+		if ([DISK_MAP_TABLE + pid * 10 + entry] != -1)
+		then
+			multipush(R1, R2, R3, R4);
+			R1 = 4;
+			R2 = [DISK_MAP_TABLE + pid * 10 + entry];
+			R3 = pid;
+			call MOD_2;
+			multipop(R1, R2, R3, R4);
+		endif;
+		[DISK_MAP_TABLE + pid * 10 + entry] = -1;
+		entry = entry + 1;
+	endwhile;
+	return;
+endif;

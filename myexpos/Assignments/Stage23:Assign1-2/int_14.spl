@@ -1,0 +1,69 @@
+alias userSP R0;
+alias syscall R1;
+[PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
+userSP = SP;
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
+syscall = [[PTBR + 2 * ((userSP - 5) / 512)] * 512 + (userSP - 5) % 512];
+
+// Semlcok system call
+if (syscall == 19) then
+	[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 19;
+	alias semid R2;
+	alias page R3;
+	alias exp R5;
+	page = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 + 512;
+	semid = [[PTBR + 2 * ((userSP - 4) / 512)] * 512 + (userSP - 4) % 512];
+	if ((semid < 0) || (semid > 7) || ([page - 16 + 2 * semid] != SEMAPHORE)) then
+		[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = -1;
+	else
+		exp = [page - 16 + 2 * semid + 1];
+		while (([SEMAPHORE_TABLE + 4 * exp] != -1) && ([SEMAPHORE_TABLE + 4 * exp] != [SYSTEM_STATUS_TABLE + 1])) do
+			[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 4] = WAIT_SEMAPHORE;
+			[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 5] = exp;
+			breakpoint;
+			multipush(R0, R1, R2, R3, R5);
+			call MOD_5;
+			multipop(R0, R1, R2, R3, R5);
+		endwhile;
+		[SEMAPHORE_TABLE + 4 * [page - 16 + 2 * semid + 1]] = [SYSTEM_STATUS_TABLE + 1];
+		[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = 0;
+	endif;
+	
+endif;
+
+// semunlock system call
+if (syscall == 20) then
+	[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 20;
+	alias semid R2;
+	alias page R4;
+	alias exp R5;
+	page = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 + 512;
+	semid = [[PTBR + 2 * ((userSP - 4) / 512)] * 512 + (userSP - 4) % 512];
+	if ((semid < 0) || (semid > 7) || ([page - 16 + 2 * semid] != SEMAPHORE)) then
+		[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = -1;
+	else
+		exp = [page - 16 + 2 * semid + 1];
+		if ([SEMAPHORE_TABLE + 4 * exp] != -1) then
+			if ([SEMAPHORE_TABLE + 4 * exp] != [SYSTEM_STATUS_TABLE + 1]) then
+				[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = -2;
+			else
+				[SEMAPHORE_TABLE + 4 * exp] = -1;
+				alias entry R3;
+				entry = 1;
+				while (entry < 16) do
+					if (([PROCESS_TABLE + entry * 16 + 4] == WAIT_SEMAPHORE) && ([PROCESS_TABLE + entry * 16 + 5] == exp)) then
+						[PROCESS_TABLE + entry * 16 + 4] = READY;
+					endif;
+					entry = entry + 1;
+				endwhile;
+				[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = 0;
+			endif;
+		else
+			[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = 0;
+		endif;
+	endif;
+endif;
+
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+ireturn;
