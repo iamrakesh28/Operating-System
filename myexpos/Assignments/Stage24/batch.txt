@@ -1,0 +1,18 @@
+load --os /root/Desktop/myexpos/Assignments/Stage19:Assign1/os_startup.xsm
+load --library /root/Desktop/myexpos/expl/library.lib
+load --init /root/Desktop/myexpos/Assignments/Stage19:Assign1/execSys.xsm
+load --idle /root/Desktop/myexpos/Assignments/Stage19:Assign1/idle.xsm
+load --int=timer /root/Desktop/myexpos/Assignments/Stage19:Assign1/timer.xsm
+load --int=7 /root/Desktop/myexpos/Assignments/Stage19:Assign1/sample_int7.xsm
+load --int=6 /root/Desktop/myexpos/Assignments/Stage19:Assign1/int_6.xsm
+load --int=console /root/Desktop/myexpos/Assignments/Stage19:Assign1/console_interr.xsm
+load --int=10 /root/Desktop/myexpos/Assignments/Stage19:Assign1/haltprog.xsm
+load --module 0 /root/Desktop/myexpos/Assignments/Stage19:Assign1/MOD_0.xsm
+load --module 4 /root/Desktop/myexpos/Assignments/Stage19:Assign1/MOD_4.xsm
+load --module 7 /root/Desktop/myexpos/Assignments/Stage19:Assign1/boot_module.xsm
+load --module 5 /root/Desktop/myexpos/Assignments/Stage19:Assign1/sched_module.xsm
+load --module 1 /root/Desktop/myexpos/Assignments/Stage19:Assign1/MOD_1.xsm
+load --module 2 /root/Desktop/myexpos/Assignments/Stage19:Assign1/MOD_2.xsm
+load --int=9 /root/Desktop/myexpos/Assignments/Stage19:Assign1/int_9.xsm
+load --int=disk /root/Desktop/myexpos/Assignments/Stage19:Assign1/disk_int.xsm
+load --exhandler /root/Desktop/myexpos/Assignments/Stage19:Assign1/exception_handler.xsm

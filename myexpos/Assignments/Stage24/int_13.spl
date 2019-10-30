@@ -1,0 +1,64 @@
+alias userSP R0;
+alias syscall R1;
+[PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
+userSP = SP;
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
+syscall = [[PTBR + 2 * ((userSP - 5) / 512)] * 512 + (userSP - 5) % 512];
+
+// Segmet system call
+if (syscall == 17) then
+	[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 17;
+	alias entry R2;
+	alias page R3;
+	alias res R4;
+	entry = 0;
+	page = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 + 512;
+	while (entry < 8) do
+		if ([page - 2 * entry - 2] == -1) then
+			break;
+		endif;
+		entry = entry + 1;
+	endwhile;	
+
+	if (entry == 8) then
+		[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = -1;
+	else
+		multipush(R0, R1, R2, R3);
+		R1 = 6;
+		R2 = [SYSTEM_STATUS_TABLE + 1];
+		call MOD_0;
+		res = R0;
+		multipop(R0, R1, R2, R3);
+		if (res != -1) then
+			[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = 8 - entry - 1;
+			[page - 2 * entry - 2] = SEMAPHORE;
+			[page - 2 * entry - 1] = res;
+		else
+			[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = -2;
+		endif;
+	endif;
+endif;
+
+// Semrealease System Call
+if (syscall == 18) then
+	[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 18;
+	alias semid R2;
+	alias page R3;
+	page = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 + 512;
+	semid = [[PTBR + 2 * ((userSP - 4) / 512)] * 512 + (userSP - 4) % 512];
+	if ((semid < 0) || (semid > 7) || ([page - 16 + 2 * semid] != SEMAPHORE)) then
+		[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = -1;
+	else
+		multipush(R0, R1, R2, R3);
+		R1 = 7;
+		R2 = [page - 16 + 2 * semid + 1];
+		R3 = [SYSTEM_STATUS_TABLE + 1];
+		call MOD_0;
+		multipop(R0, R1, R2, R3);
+		[page - 16 + 2 * semid] = -1;
+	endif;
+endif;
+
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+ireturn;

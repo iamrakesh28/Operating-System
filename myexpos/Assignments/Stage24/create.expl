@@ -1,0 +1,15 @@
+int main() {
+
+	decl
+	int ret, perm;
+	str file;
+	enddecl
+	begin
+		ret = exposcall("Write", -2, "File ");
+		ret = exposcall("Read", -1, file);
+		ret = exposcall("Write", -2, "perm");
+		ret = exposcall("Read", -1, perm);
+		ret = exposcall("Create", file, perm);
+		return 0;
+	end
+}

@@ -1,0 +1,96 @@
+// File manager
+
+alias func R1;
+
+// open
+if (func == 4) then
+	alias file R2;
+	alias entry R3;
+	entry = 0;
+	while (entry < MAX_FILE_NUM) do
+		if ([INODE_TABLE + 16 * entry + 1] == file) then
+			break;
+		endif;
+		entry = entry + 1;
+	endwhile;
+	if (entry == MAX_FILE_NUM) then
+		R0 = -1;
+		return;
+	endif;
+	if ([INODE_TABLE + 16 * entry] == EXEC) then
+		R0 = -1;
+		return;
+	endif;
+
+	// acquire inode
+	multipush(R1, R2, R3);
+	R1 = 4;
+	R2 = entry;
+	R3 = [SYSTEM_STATUS_TABLE + 1];
+	call MOD_0;
+	mulitpop(R1, R2, R3);
+	if (R0 == -1) then
+		return;
+	endif;
+
+	// open file table index
+	alias index R4;
+	index = 0;
+	while (index < MAX_OPENFILE_NUM) do
+		if ([OPEN_FILE_TABLE + index * 4] == -1) then
+			break;
+		endif;
+		index = index + 1;
+	endwhile;
+	if (index == MAX_OPENFILE_NUM) then
+		R0 = -2;
+		return;
+	endif;
+	
+	if (file == "root") then
+		[OPEN_FILE_TABLE + 4 * index] = INODE_ROOT;
+	else
+		if ([FILE_STATUS_TABLE + 4 * entry + 1] == -1) then
+			[FILE_STATUS_TABLE + 4 * entry + 1] = 1;
+		else
+			[FILE_STATUS_TABLE + 4 * entry + 1] = [FILE_STATUS_TABLE + 4 * entry + 1] + 1;
+		endif;
+		[OPEN_FILE_TABLE + 4 * index] = entry;
+	endif;
+
+	[OPEN_FILE_TABLE + 4 * index + 1] = 1;
+	[OPEN_FILE_TABLE + 4 * index] = 0;
+
+	// release inode
+	multipush(R4);
+	R1 = 5;
+	R2 = entry;
+	R3 = [SYSTEM_STATUS_TABLE + 1];
+	call MOD_0;
+	mulitpop(R4);
+	R0 = index;
+	return;
+endif;
+
+// close
+if (func == 3) then
+	alias file R2;
+	alias entry R3;
+	entry = [OPEN_FILE_TABLE + 4 * file];
+	[OPEN_FILE_TABLE + 4 * file + 1] = [OPEN_FILE_TABLE + 4 * file + 1] - 1;
+
+	if ([OPEN_FILE_TABLE + 4 * file + 1] == 0) then
+		[OPEN_FILE_TABLE + 4 * file + 0] = -1;
+		[OPEN_FILE_TABLE + 4 * file + 1] = -1;
+		[OPEN_FILE_TABLE + 4 * file + 2] = -1;
+		[OPEN_FILE_TABLE + 4 * file + 3] = -1;
+		if ([OPEN_FILE_TABLE + 4 * file] != INODE_ROOT) then
+			[FILE_STATUS_TABLE + 4 * entry + 1] = [FILE_STATUS_TABLE + 4 * entry + 1] - 1;
+		endif;
+
+		if ([FILE_STATUS_TABLE + 4 * entry + 1] == 0) then
+			[FILE_STATUS_TABLE + 4 * entry + 1] = -1;
+		endif;
+	endif;
+	return;
+endif;
