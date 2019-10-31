@@ -3,6 +3,46 @@
 alias funcNum R1;
 alias currPID R2;
 
+// Acquire Buffer
+if (funcNum == 1)
+then
+	
+	alias buffer R2;
+	alias pid R3;
+	while ([BUFFER_TABLE + 4 * buffer + 2] != -1) do
+		[PROCESS_TABLE + 16 * pid + 4] = WAIT_BUFFER;
+		[PROCESS_TABLE + 16 * pid + 5] = buffer;
+		multipush(R1, R2, R3);
+		call MOD_5;
+		multipop(R1, R2, R3);
+	endwhile;
+	[BUFFER_TABLE + 4 * buffer + 2] = pid;
+	return;
+endif;
+
+// Release Buffer
+if (funcNum == 2)
+then
+	
+	alias buffer R2;
+	alias pid R3;
+	if ([BUFFER_TABLE + 4 * buffer + 2] != pid) then
+		R0 = -1;
+		return;
+	endif;
+	[BUFFER_TABLE + 4 * buffer + 2] = -1;
+	
+	alias entry R4;
+	entry = 1;
+	while (entry < 16) do
+		if (([PROCESS_TABLE + entry * 16 + 4] == WAIT_BUFFER) && ([PROCESS_TABLE + entry * 16 + 5] == buffer)) then
+			[PROCESS_TABLE + entry * 16 + 4] = READY;
+		endif;
+		entry = entry + 1;
+	endwhile;
+	R0 = 0;
+	return;
+endif;
 
 // Acquire Disk
 if (funcNum == 3)

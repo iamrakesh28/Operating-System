@@ -39,7 +39,7 @@ if (syscall == 2) then
 			[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = res;
 		endif;
 	endif;
-
+	//breakpoint;
 endif;
 
 // close system call

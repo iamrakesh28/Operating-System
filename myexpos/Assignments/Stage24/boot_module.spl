@@ -6,6 +6,9 @@ loadi(64,14);
 loadi(10, 23);
 loadi(11, 24);
 
+// INT 5
+loadi(12, 25);
+loadi(13, 26);
 
 // INT 15
 loadi(32, 45);
@@ -45,6 +48,10 @@ loadi(7,20);
 // Module 1
 loadi(42,55);
 loadi(43,56);
+
+// Module 3
+loadi(46,59);
+loadi(47,60);
 
 // Module 2
 loadi(44,57);
@@ -196,6 +203,16 @@ while (id < MAX_BUFFER) do
 	[BUFFER_TABLE + id * 4] = -1;
 	[BUFFER_TABLE + id * 4 + 1] = 0;
 	[BUFFER_TABLE + id * 4 + 2] = -1;
+	id = id + 1;
+endwhile;
+
+// open file table
+id = 0;
+while (id < MAX_OPENFILE_NUM) do
+	[OPEN_FILE_TABLE + id * 4] = -1;
+	[OPEN_FILE_TABLE + id * 4 + 2] = -1;
+	[OPEN_FILE_TABLE + id * 4 + 3] = -1;
+	[OPEN_FILE_TABLE + id * 4 + 1] = 0;
 	id = id + 1;
 endwhile;
 

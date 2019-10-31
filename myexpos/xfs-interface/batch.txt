@@ -1,24 +1,26 @@
-load --os /root/Desktop/OperatingSystem/myexpos/Assignments/Stage23:Assign1-2/os_startup.xsm
-load --library /root/Desktop/OperatingSystem/myexpos/expl/library.lib
-load --init /root/Desktop/OperatingSystem/myexpos/Assignments/Stage23:Assign1-2/shell2.xsm
-load --idle /root/Desktop/OperatingSystem/myexpos/Assignments/Stage23:Assign1-2/idle.xsm
-load --int=timer /root/Desktop/OperatingSystem/myexpos/Assignments/Stage23:Assign1-2/timer.xsm
-load --int=7 /root/Desktop/OperatingSystem/myexpos/Assignments/Stage23:Assign1-2/sample_int7.xsm
-load --int=6 /root/Desktop/OperatingSystem/myexpos/Assignments/Stage23:Assign1-2/int_6.xsm
-load --int=console /root/Desktop/OperatingSystem/myexpos/Assignments/Stage23:Assign1-2/console_interr.xsm
-load --module 0 /root/Desktop/OperatingSystem/myexpos/Assignments/Stage23:Assign1-2/MOD_0.xsm
-load --module 4 /root/Desktop/OperatingSystem/myexpos/Assignments/Stage23:Assign1-2/MOD_4.xsm
-load --module 7 /root/Desktop/OperatingSystem/myexpos/Assignments/Stage23:Assign1-2/boot_module.xsm
-load --module 5 /root/Desktop/OperatingSystem/myexpos/Assignments/Stage23:Assign1-2/sched_module.xsm
-load --module 1 /root/Desktop/OperatingSystem/myexpos/Assignments/Stage23:Assign1-2/MOD_1.xsm
-load --module 2 /root/Desktop/OperatingSystem/myexpos/Assignments/Stage23:Assign1-2/MOD_2.xsm
-load --int=8 /root/Desktop/OperatingSystem/myexpos/Assignments/Stage23:Assign1-2/int_8.xsm
-load --int=4 /root/Desktop/OperatingSystem/myexpos/Assignments/Stage23:Assign1-2/int_4.xsm
-load --int=9 /root/Desktop/OperatingSystem/myexpos/Assignments/Stage23:Assign1-2/int_9.xsm
-load --int=10 /root/Desktop/OperatingSystem/myexpos/Assignments/Stage23:Assign1-2/int_10.xsm
-load --int=11 /root/Desktop/OperatingSystem/myexpos/Assignments/Stage23:Assign1-2/int_11.xsm
-load --int=15 /root/Desktop/OperatingSystem/myexpos/Assignments/Stage23:Assign1-2/int_15.xsm
-load --int=13 /root/Desktop/OperatingSystem/myexpos/Assignments/Stage23:Assign1-2/int_13.xsm
-load --int=14 /root/Desktop/OperatingSystem/myexpos/Assignments/Stage23:Assign1-2/int_14.xsm
-load --int=disk /root/Desktop/OperatingSystem/myexpos/Assignments/Stage23:Assign1-2/disk_int.xsm
-load --exhandler /root/Desktop/OperatingSystem/myexpos/Assignments/Stage23:Assign1-2/exception_handler.xsm
+load --os $HOME/OperatingSystem/myexpos/Assignments/Stage24/os_startup.xsm
+load --library $HOME/OperatingSystem/myexpos/expl/library.lib
+load --init $HOME/OperatingSystem/myexpos/Assignments/Stage24/shell2.xsm
+load --idle $HOME/OperatingSystem/myexpos/Assignments/Stage24/idle.xsm
+load --int=timer $HOME/OperatingSystem/myexpos/Assignments/Stage24/timer.xsm
+load --int=7 $HOME/OperatingSystem/myexpos/Assignments/Stage24/sample_int7.xsm
+load --int=console $HOME/OperatingSystem/myexpos/Assignments/Stage24/console_interr.xsm
+load --module 0 $HOME/OperatingSystem/myexpos/Assignments/Stage24/MOD_0.xsm
+load --module 4 $HOME/OperatingSystem/myexpos/Assignments/Stage24/MOD_4.xsm
+load --module 7 $HOME/OperatingSystem/myexpos/Assignments/Stage24/boot_module.xsm
+load --module 5 $HOME/OperatingSystem/myexpos/Assignments/Stage24/sched_module.xsm
+load --module 1 $HOME/OperatingSystem/myexpos/Assignments/Stage24/MOD_1.xsm
+load --module 2 $HOME/OperatingSystem/myexpos/Assignments/Stage24/MOD_2.xsm
+load --int=4 $HOME/OperatingSystem/myexpos/Assignments/Stage24/int_4.xsm
+load --int=9 $HOME/OperatingSystem/myexpos/Assignments/Stage24/int_9.xsm
+load --int=10 $HOME/OperatingSystem/myexpos/Assignments/Stage24/int_10.xsm
+load --int=11 $HOME/OperatingSystem/myexpos/Assignments/Stage24/int_11.xsm
+load --int=15 $HOME/OperatingSystem/myexpos/Assignments/Stage24/int_15.xsm
+load --int=13 $HOME/OperatingSystem/myexpos/Assignments/Stage24/int_13.xsm
+load --int=5 $HOME/OperatingSystem/myexpos/Assignments/Stage24/int_5.xsm
+load --module 3 $HOME/OperatingSystem/myexpos/Assignments/Stage24/MOD_3.xsm
+load --int=6 $HOME/OperatingSystem/myexpos/Assignments/Stage24/int_6.xsm
+load --int=14 $HOME/OperatingSystem/myexpos/Assignments/Stage24/int_14.xsm
+load --int=8 $HOME/OperatingSystem/myexpos/Assignments/Stage24/int_8.xsm
+load --int=disk $HOME/OperatingSystem/myexpos/Assignments/Stage24/disk_int.xsm
+load --exhandler $HOME/OperatingSystem/myexpos/Assignments/Stage24/exception_handler.xsm
