@@ -17,8 +17,8 @@ then
 	page = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 + 512;
 	if ((fileDesc < 0) || (fileDesc > 7) || ([page - 2 * (7 - fileDesc) - 2] != FILE)) then
 		[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + ((userSP - 1) % 512)] = -1;
-		print [page - 2 * (7 - fileDesc) - 2];
-		breakpoint;
+		//print [page - 2 * (7 - fileDesc) - 2];
+		//breakpoint;
 	else
 		alias indexft R2;
 		alias inode R3;
@@ -98,10 +98,10 @@ then
 				// [[PTBR + 2 * ((userSP - 1) / 512)] * 512 + ((userSP - 1) % 512)] = -2;
 			endif;
 		endif;
+		alias phyAdd R5;
+		phyAdd = ([PTBR + 2 * ((userSP - 1) / 512)] * 512) + ((userSP - 1) % 512);
+		[phyAdd] = 0;
 	endif;
-	alias phyAdd R5;
-	phyAdd = ([PTBR + 2 * ((userSP - 1) / 512)] * 512) + ((userSP - 1) % 512);
-	[phyAdd] = 0;
 else
 	alias word_add R5;
 	word_add = [[PTBR + 2 * ((userSP - 3) / 512)] * 512 + ((userSP - 3) % 512)];
