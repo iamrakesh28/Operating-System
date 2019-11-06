@@ -72,8 +72,8 @@ if (func == 3) then
 	return;
 endif;
 
-// buffer read
-if (func == 2) then
+// buffer read and write
+if (func == 2 || func == 1) then
 	alias block R2;
 	alias offset R3;
 	alias mem R4;
@@ -116,7 +116,14 @@ if (func == 2) then
 		breakpoint;
 	endif;
 
-	[mem] = [(71 + buffer) * 512 + offset];
+	if (func == 2) then
+		[mem] = [(71 + buffer) * 512 + offset];
+	else
+		[(71 + buffer) * 512 + offset] = [mem];
+		// marked as dirty
+		[BUFFER_TABLE + buffer * 4 + 1] = 1;
+	endif;
+
 	// release buffer
 	multipush(R1, R2, R3, R4, R5);
 	R1 = 2;

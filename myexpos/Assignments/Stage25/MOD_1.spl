@@ -143,3 +143,47 @@ then
 	endwhile;
 	return;
 endif;
+
+// kill all
+if (func == 5)
+then
+	alias pid R2;
+	alias entry R3;
+	entry = 0;
+	while (entry < MAX_FILE_NUM) do
+		// acquire inode
+		multipush(R1, R2, R3);
+		R1 = 4;
+		R2 = entry;
+		R3 = [SYSTEM_STATUS_TABLE + 1];
+		call MOD_0;
+		multipop(R1, R2, R3);
+		entry = entry + 1;
+	endwhile;
+
+	entry = 2;
+	while (entry < 16) do
+		if (pid != entry && [PROCESS_TABLE + 16 * entry + 4] != TERMINATED) then
+			// exit process
+			multipush(R1, R2, R3);
+			R1 = 3;
+			R2 = pid;
+			call MOD_1;
+			multipop(R1, R2, R3);
+		endif;
+		entry = entry + 1;
+	endwhile;
+
+	entry = 0;
+	while (entry < MAX_FILE_NUM) do
+		// release inode
+		multipush(R1, R2, R3);
+		R1 = 5;
+		R2 = entry;
+		R3 = [SYSTEM_STATUS_TABLE + 1];
+		call MOD_0;
+		multipop(R1, R2, R3);
+		entry = entry + 1;
+	endwhile;
+	return;
+endif;

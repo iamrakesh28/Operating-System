@@ -106,6 +106,28 @@ then
 	return;
 endif;
 
+// get free block
+if (func == 3) then
+	alias freeArea R2;
+	alias swapArea R3;
+	freeArea = DISK_FREE_AREA;
+	swapArea = DISK_SWAP_AREA;
+	while (freeArea < swapArea) do
+		if ([DISK_FREE_LIST + freeArea] == 0) then
+			[DISK_FREE_LIST + freeArea] = 1;
+			break;
+		endif;
+		freeArea = freeArea + 1;
+	endwhile;
+	
+	if (freeArea == swapArea) then
+		R0 = -1;
+	else
+		R0 = freeArea;
+	endif;
+	return;
+endif;
+
 // Release Block
 if (func == 4)
 then

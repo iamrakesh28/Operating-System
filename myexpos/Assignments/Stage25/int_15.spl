@@ -18,6 +18,34 @@ if (syscall == 21) then
 		[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = -1;
 		ireturn;
 	endif;
+
+	// killAll
+	alias entry R4;
+	entry = 2;
+	while (entry < 16) do
+		multipush(R2, R3, R4);
+		R1 = 5;
+		R2 = entry;
+		call MOD_1;
+		multipop(R2, R3, R4);
+		entry = entry + 1;
+	endwhile;
+
+	// buffer table
+	entry = 0;
+	while (entry < 4) do
+		if ([BUFFER_TABLE + 4 * entry] != -1 && [BUFFER_TABLE + 4 * entry + 1] == 1) then
+			multipush(R2, R3, R4);
+			R1 = 1;
+			R2 = pid;
+			R3 = 71 + entry;
+			R4 = [BUFFER_TABLE + 4 * entry];
+			call MOD_4;
+			multipop(R2, R3, R4);
+		endif;
+		entry = entry + 1;
+	endwhile;
+
 	// inode table and user table
 	multipush(R2, R3);
 	R1 = 1;

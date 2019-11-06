@@ -68,7 +68,56 @@ then
 				call MOD_0;
 				multipush(R0, R1, R2, R3, R7);
 			else
-				if ((lseek % 512) == 0)
+				alias size R5;
+				size = [INODE_TABLE + inode * 16 + 2];
+				if (((lseek % 512) == 0) && (size == lseek)) then
+					// free block
+					multipush(R0, R1, R2, R3, R4, R7);
+					R1 = 3;
+					call MOD_2;
+					R6 = R0;
+					multipop(R0, R1, R2, R3, R4, R7);
+					if (R6 < 0) then
+						[phyAdd] = -2;
+						SP = userSP;
+						[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+						ireturn;
+					endif;
+					[INODE_TABLE + 16 * inode + (lseek / 512) + 8] = R6;
+				endif;
+				alias disk R5;
+				disk = lseek / 512;
+				disk = [INODE_TABLE + 16 * inode + disk + 8];
+				alias offset R6;
+				offset = lseek % 512;
+				alias add R8;
+				add = [[PTBR + 2 * ((userSP - 3) / 512)] * 512 + ((userSP - 3) % 512)];
+				add = [PTBR + 2 * (add / 512)] * 512 + (add % 512);
+
+				// buffer write
+				multipush(R0, R1, R2, R3, R4, R7);
+				R1 = 1;
+				R2 = disk;
+				R3 = offset;
+				R4 = add;
+				call MOD_3;
+				multipop(R0, R1, R2, R3, R4, R7);
+	
+				alias size R5;
+				size = [INODE_TABLE + inode * 16 + 2];
+				if (size == lseek) then
+					[INODE_TABLE + inode * 16 + 2] = [INODE_TABLE + inode * 16 + 2] + 1;
+					[ROOT_FILE + 8 * inode + 1] = [ROOT_FILE + 8 * inode + 1] + 1;
+				endif;
+
+				// release inode
+				multipush(R0, R1, R2, R3, R7);
+				R1 = 5;
+				R2 = inode;
+				R3 = [SYSTEM_STATUS_TABLE + 1];
+				call MOD_0;
+				multipush(R0, R1, R2, R3, R7);
+				[phyAdd] = 0;
 			endif;
 		endif;
 	endif;
