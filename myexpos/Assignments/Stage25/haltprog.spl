@@ -1,0 +1,14 @@
+alias curPID R0;
+curPID = [SYSTEM_STATUS_TABLE + 1];
+alias process R3;
+process = PROCESS_TABLE + curPID * 16;
+[process + 4] = TERMINATED;
+curPID = 1;
+while (curPID < 10) do
+	process = PROCESS_TABLE + curPID * 16;
+	if ([process + 4] != TERMINATED) then
+		call MOD_5;
+	endif;
+	curPID = curPID + 1;
+endwhile;
+halt;

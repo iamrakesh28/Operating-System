@@ -1,0 +1,14 @@
+int main()
+{
+	decl
+	int ret;
+	str string;
+	enddecl
+	begin
+		string = "Filename";
+		ret = exposcall("Write", -2, string);
+		ret = exposcall("Read", -1, string);
+		ret = exposcall("Exec", string);
+		return 0;
+	end
+}

@@ -1,0 +1,52 @@
+type
+
+	Node {
+		int data;
+		Node next;
+	}
+
+endtype
+
+int main()
+{
+	decl
+		Node head, tail, newNode;
+		int n, ret, temp;
+		str string;
+	enddecl
+
+	begin
+		string = "Enter N";
+		ret = exposcall("Write", -2, string);
+		ret = exposcall("Read", -1, n);
+		string = "Enter Numbers";
+		ret = exposcall("Write", -2, string);
+		ret = exposcall("Heapset");
+		tail = null;
+		head = null;
+
+		while (n > 0) do
+			ret = exposcall("Read", -1, temp);
+			newNode = exposcall("Alloc", 2);
+			newNode.data = temp;
+			newNode.next = null;
+
+			if (head == null) 
+			then
+				head = newNode;
+				tail = head;
+			else
+				tail.next = newNode;
+				tail = tail.next;
+			endif;
+			n = n - 1;
+		endwhile;
+
+		while (head != null) do
+			temp = head.data;
+			ret = exposcall("Write", -2, temp);
+			head = head.next;
+		endwhile;
+		return 0;
+	end
+}

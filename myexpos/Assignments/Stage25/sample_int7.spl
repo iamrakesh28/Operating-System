@@ -1,0 +1,92 @@
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 5;
+alias userSP R0;
+userSP = SP;
+[PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
+alias PhyPage R1;
+alias offset R2;
+alias filePhyAdd R3;
+PhyPage = [PTBR + 2 * ((userSP - 4) / 512)];
+offset = (userSP - 4) % 512;
+filePhyAdd = (PhyPage * 512) + offset;
+alias fileDesc R4;
+fileDesc = [filePhyAdd];
+if (fileDesc != -2)
+then
+	alias phyAdd R7;
+	phyAdd = ([PTBR + 2 * ((userSP - 1) / 512)] * 512) + ((userSP - 1) % 512);
+	if (fileDesc < 0 || fileDesc > 7) then
+		[phyAdd] = -1;		
+	else
+		alias page R1;
+		page = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 13] * 512 + 512;
+		if ([page - (16 - 2 * fileDesc - 2)] != FILE) then
+			[phyAdd] = -1;
+		else
+			
+			// open file table
+			alias inode R2;
+			alias open R3;
+			open = [page - 2 * (7 - fileDesc) + 1];
+			inode = [OPEN_FILE_TABLE + open * 4];
+			alias userid R4;
+			userid = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 3];
+			alias fileUser R5;
+			fileUser = [INODE_TABLE + 16 * inode + 3];
+			alias perm R6;
+			perm = [INODE_TABLE + 16 * inode + 4];
+			if ((userid != 1) && (fileUser != userid) && (perm == EXCLUSIVE)) then
+				[phyAdd] = -3;
+				SP = userSP;
+				[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+				ireturn;
+			endif;
+			// R4
+			// acquire inode
+			multipush(R0, R1, R2, R3, R7);
+			R1 = 4;
+			R2 = inode;
+			R3 = [SYSTEM_STATUS_TABLE + 1];
+			call MOD_0;
+			R4 = R0;
+			multipush(R0, R1, R2, R3, R7);
+			if (R4 < 0) then
+				[phyAdd] = -1;
+				SP = userSP;
+				[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+				ireturn;
+			endif;
+			alias lseek R4;
+			lseek = [OPEN_FILE_TABLE + 4 * open + 2];
+			if (lseek == MAX_FILE_SIZE) then
+				[phyAdd] = -2;
+				// release inode
+				multipush(R0, R1, R2, R3, R7);
+				R1 = 5;
+				R2 = inode;
+				R3 = [SYSTEM_STATUS_TABLE + 1];
+				call MOD_0;
+				multipush(R0, R1, R2, R3, R7);
+			else
+				if ((lseek % 512) == 0)
+			endif;
+		endif;
+	endif;
+
+else
+	alias word R5;
+	word = [[PTBR + 2 * ((userSP - 3) / 512)] * 512 + ((userSP - 3) % 512)];
+	multipush(R0, R1, R2, R3, R4, R5);
+	R1 = 3;
+	R2 = [SYSTEM_STATUS_TABLE + 1];
+	R3 = word;
+	call MOD_4;
+	//print word;
+	multipop(R0, R1, R2, R3, R4, R5);
+	alias phyAdd R6;
+	phyAdd = ([PTBR + 2 * ((userSP - 1) / 512)] * 512) + ((userSP - 1) % 512);
+	[phyAdd] = 0;
+endif;
+SP = userSP;
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+ireturn;

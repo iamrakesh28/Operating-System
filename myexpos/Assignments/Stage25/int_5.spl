@@ -1,0 +1,69 @@
+alias userSP R0;
+alias syscall R1;
+[PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
+userSP = SP;
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
+syscall = [[PTBR + 2 * ((userSP - 5) / 512)] * 512 + (userSP - 5) % 512];
+
+// open system call
+if (syscall == 2) then
+	[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 2;
+	alias page R2;
+	page = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 + 512;
+	alias entry R3;
+	alias file R4;
+	file = [[PTBR + 2 * ((userSP - 4) / 512)] * 512 + (userSP - 4) % 512];
+	entry = 0;
+	while (entry < 8) do
+		if ([page - 2 * entry - 2] == -1) then
+			break;
+		endif;
+		entry = entry + 1;
+	endwhile;	
+
+	if (entry == 8) then
+		[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = -3;
+	else
+		alias res R5;
+		multipush(R0, R1, R2, R3, R4);
+		R1 = 3;
+		R2 = file;
+		call MOD_3;
+		res = R0;
+		multipop(R0, R1, R2, R3, R4);
+		if (res >= 0) then
+			[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = 8 - entry - 1;
+			[page - 2 * entry - 2] = FILE;
+			[page - 2 * entry - 1] = res;
+		else
+			[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = res;
+		endif;
+	endif;
+endif;
+
+// close system call
+if (syscall == 3) then
+	[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 3;
+	alias page R2;
+	page = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 + 512;
+	alias fd R3;
+	alias index R4;
+	fd = [[PTBR + 2 * ((userSP - 4) / 512)] * 512 + (userSP - 4) % 512];
+	if ((fd < 0) || (fd > 7) || ([page - 16 + 2 * fd] != FILE)) then
+		[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = -1;
+	else
+		index = [page - 16 + 2 * fd + 1];
+		multipush(R0, R1, R2, R3, R4);
+		R1 = 4;
+		R2 = index;
+		call MOD_3;
+		multipop(R0, R1, R2, R3, R4);
+		[page - 16 + 2 * fd] = -1;
+		[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = 0;
+	endif;
+
+endif;
+
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+ireturn;

@@ -1,0 +1,115 @@
+// Memory Manager Module
+
+alias func R1;
+alias page R2;
+
+// Get Code Page
+if (func == 5)
+then
+	alias block R2;
+	alias id R3;
+	alias found R4;
+	alias addr R5;
+	id = 1;
+	while (id < 10) do
+		alias entry R6;
+		entry = 4;
+		while (entry < 8) do
+			addr = DISK_MAP_TABLE + id * 10 + entry;
+			if ([addr] == block) 
+			then
+				alias ptbr R7;
+				ptbr = [PROCESS_TABLE + id * 16 + 14];
+				//print [PTBR + 1];
+				if ([ptbr + 2 * entry + 1] == "0100")
+				then
+					R0 = [ptbr + 2 * entry];
+					[MEMORY_FREE_LIST + R0] = [MEMORY_FREE_LIST + R0] + 1;
+					breakpoint;
+					return;
+				endif;
+			endif;
+			entry = entry + 1;
+		endwhile;
+		id = id + 1;
+	endwhile;
+	
+	alias page R3;
+	// Get Free Page
+	multipush(R1, R2);
+	R1 = 1;
+	call MOD_2;
+	multipop(R1, R2);
+
+	page = R0;
+	R4 = block;
+	multipush(R1, R2, R3);
+	R1 = 2;
+	R2 = [SYSTEM_STATUS_TABLE + 1];
+	R3 = page;
+	//R4 = block;
+	call MOD_4;
+	multipop(R1, R2, R3);
+	R0 = page;
+	breakpoint;
+	return;
+endif;
+
+// Get Free Page
+if (func == 1)
+then
+	[SYSTEM_STATUS_TABLE + 3] = [SYSTEM_STATUS_TABLE + 3] + 1;
+	alias mem R3;
+	mem = [SYSTEM_STATUS_TABLE + 2];
+	while (mem == 0) do
+		[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 4] = WAIT_MEM;
+		multipush(R1, R2, R3);
+		call MOD_5;
+		multipop(R1, R2, R3);
+		mem = [SYSTEM_STATUS_TABLE + 2];
+	endwhile;
+	[SYSTEM_STATUS_TABLE + 3] = [SYSTEM_STATUS_TABLE + 3] - 1;
+	[SYSTEM_STATUS_TABLE + 2] = [SYSTEM_STATUS_TABLE + 2] - 1;
+	alias id R4;
+	id = 0;
+	while (id < MAX_MEM_PAGE) do
+		if ([MEMORY_FREE_LIST + id] == 0)
+		then
+			R0 = id;
+			[MEMORY_FREE_LIST + id] = 1;
+			break;
+		endif;
+		id = id + 1;
+	endwhile;
+	//breakpoint;
+	return;
+endif;
+
+// Release Page
+if (func == 2)
+then
+	alias id R3;
+	[MEMORY_FREE_LIST + page] = [MEMORY_FREE_LIST + page] - 1;
+	if ([MEMORY_FREE_LIST + page] == 0)
+	then
+		[SYSTEM_STATUS_TABLE + 2] = [SYSTEM_STATUS_TABLE + 2] + 1;
+		id = 1;
+		while (id < 10) do
+			if ([PROCESS_TABLE + id * 16 + 4] == WAIT_MEM)
+			then
+				[PROCESS_TABLE + id * 16 + 4] = READY;
+			endif;
+			id = id + 1;
+		endwhile;
+	endif;
+	//breakpoint;
+	return;
+endif;
+
+// Release Block
+if (func == 4)
+then
+	alias block R2;
+	[DISK_FREE_LIST + block] = [DISK_FREE_LIST + block] - 1;
+	return;
+endif;
