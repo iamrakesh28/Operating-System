@@ -41,22 +41,25 @@ then
 			alias mem R6;
 			mem = [[PTBR + 2 * ((userSP - 3) / 512)] * 512 + ((userSP - 3) % 512)];
 			mem = [PTBR + 2 * (mem / 512)] * 512 + (mem % 512);
+			breakpoint;
 			if (inode == INODE_ROOT) then
-				if (lseek == 480) then
-					// release inode
-					multipush(R0);
-					R1 = 5;
-					R2 = inode;
-					R3 = [SYSTEM_STATUS_TABLE + 1];
-					call MOD_0;
-					multipop(R0);
+				if (lseek < 480) then
+					[mem] = [ROOT_FILE + lseek];
+					[OPEN_FILE_TABLE + 4 * indexft + 2] = [OPEN_FILE_TABLE + 4 * indexft + 2] + 1;
+					[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + ((userSP - 1) % 512)] = 0;
+				else
 					[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + ((userSP - 1) % 512)] = -2;
-					SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
-					[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
-					ireturn;
 				endif;
-				[mem] = [ROOT_FILE + lseek];
-				[OPEN_FILE_TABLE + 4 * indexft + 2] = [OPEN_FILE_TABLE + 4 * indexft + 2] + 1;
+				// release inode
+				multipush(R0);
+				R1 = 5;
+				R2 = inode;
+				R3 = [SYSTEM_STATUS_TABLE + 1];
+				call MOD_0;
+				multipop(R0);
+				SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+				[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+				ireturn;
 			else
 				if (lseek == [INODE_TABLE + 16 * inode + 2]) then
 					// release inode

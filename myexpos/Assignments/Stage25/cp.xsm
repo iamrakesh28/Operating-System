@@ -1,0 +1,28 @@
+int main() {
+
+	decl
+	int ret, fd;
+	string word, file1, file2;
+	enddecl
+	begin
+		r
+		fd =  exposcall("Open", "root");
+		if (fd < 0) then
+			ret = exposcall("Write", -2, "ErrorCode");
+			ret = exposcall("Write", -2, fd);
+		else
+			ret = exposcall("Seek", fd, 8);
+			ret = exposcall("Read", fd, word);
+			while (ret >= 0) do
+				if (word == "-1") then
+					break;
+				endif;
+				ret = exposcall("Write", -2, word);
+				ret = exposcall("Seek", fd, 7);
+				ret = exposcall("Read", fd, word);
+			endwhile;
+			fd =  exposcall("Close", fd);
+		endif;
+		return 0;
+	end
+}
