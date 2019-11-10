@@ -13,10 +13,9 @@ int main() {
 			ret = exposcall("Seek", fd, 8);
 			ret = exposcall("Read", fd, word);
 			while (ret >= 0) do
-				if (word == "-1") then
-					break;
+				if (word != "-1") then
+					ret = exposcall("Write", -2, word);
 				endif;
-				ret = exposcall("Write", -2, word);
 				ret = exposcall("Seek", fd, 7);
 				ret = exposcall("Read", fd, word);
 			endwhile;

@@ -3,9 +3,11 @@ userSP = SP;
 [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
 SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
 alias syscall R1;
-
+alias ret R10;
 syscall = [[PTBR + 2 * ((userSP - 5) / 512)] * 512 + (userSP - 5) % 512];
+ret = [PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512;
 
+// create
 if (syscall == 1) then
 	alias filename R2;
 	alias perm R3;
@@ -15,15 +17,27 @@ if (syscall == 1) then
 
 	alias entry R4;
 	entry = 1;
+	alias alr R5;
+	alr = 0;
 	while (entry < MAX_FILE_NUM) do
+		if ([INODE_TABLE + entry * 16 + 1] == filename) then
+			alr = 1;
+			break;
+		endif;
 		if ([INODE_TABLE + entry * 16 + 1] == -1) then
 			break;
 		endif;
 		entry = entry + 1;
 	endwhile;
 
+	if (alr == 1) then
+		[ret] = 0;
+		SP = userSP;
+		[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+		ireturn;
+	endif;
 	if (entry == MAX_FILE_NUM) then
-		[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = -1;
+		[ret] = -1;
 	else
 		// inode table
 		[INODE_TABLE + entry * 16 + 1] = filename;
@@ -45,10 +59,11 @@ if (syscall == 1) then
 		[ROOT_FILE + entry * 8 + 2] = DATA;	// filetype
 		[ROOT_FILE + entry * 8 + 3] = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 3];		// username
 		[ROOT_FILE + entry * 8 + 4] = perm;	// permission
-		[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = 0;
+		[ret] = 0;
 	endif;
 endif;
 
+// delete
 if (syscall == 4) then
 	alias filename R2;
 	alias data R3;
@@ -68,19 +83,19 @@ if (syscall == 4) then
 		entry = entry + 1;
 	endwhile;
 	if (entry == MAX_FILE_NUM) then
-		[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = 0;
+		[ret] = 0;
 		SP = userSP;
 		[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
 		ireturn;
 	endif;
 	if (data == 0) then
-		[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = -1;
+		[ret] = -1;
 	else
 		if ([INODE_TABLE + entry * 16 + 4] == EXCLUSIVE) then
 			if (([SYSTEM_STATUS_TABLE + 1] != 1) && ([INODE_TABLE + entry * 16 + 3] != [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 3])) then
 			SP = userSP;
 			[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
-			[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = -1;
+			[ret] = -1;
 			ireturn;
 			endif;
 		endif;
