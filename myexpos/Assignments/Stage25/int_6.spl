@@ -1,3 +1,4 @@
+breakpoint;
 [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 7;
 alias userSP R0;
 userSP = SP;
@@ -15,11 +16,13 @@ if (fileDesc != -1)
 then
 	alias page R1;
 	page = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 + 512;
+	breakpoint;
 	if ((fileDesc < 0) || (fileDesc > 7) || ([page - 2 * (7 - fileDesc) - 2] != FILE)) then
 		[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + ((userSP - 1) % 512)] = -1;
 		//print [page - 2 * (7 - fileDesc) - 2];
 		//breakpoint;
 	else
+		breakpoint;
 		alias indexft R2;
 		alias inode R3;
 		indexft = [page - 2 * (7 - fileDesc) - 1];

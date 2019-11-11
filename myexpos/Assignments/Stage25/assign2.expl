@@ -1,0 +1,38 @@
+int main() {
+
+	decl
+	int ret, fd, perm, num;
+	string file;
+	enddecl
+	begin
+		file = "reverse.dat";
+		fd = exposcall("Open", file);
+		if (fd < 0) then
+			ret = exposcall("Write", -2, "FailOpen");
+		else
+			ret = exposcall("Seek", fd, 2014);
+			num = 2000;
+			while (num < 2514) do
+				ret = exposcall("Write", fd, num);
+				if (ret < 0) then
+					ret = exposcall("Write", -2, "FailOpen");
+					break;
+				endif;
+				num = num + 1;
+			endwhile;
+			
+			ret = exposcall("Seek", fd, -1);
+			ret = exposcall("Read", fd, num);
+			while (ret >= 0) do
+				ret = exposcall("Write", -2, num);
+				ret = exposcall("Seek", fd, -2);
+				if (ret < 0) then
+					break;
+				endif;
+				ret = exposcall("Read", fd, num);	
+			endwhile;
+			ret = exposcall("Close", fd);
+		endif;
+		return 0;
+	end
+}

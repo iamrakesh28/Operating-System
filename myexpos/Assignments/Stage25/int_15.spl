@@ -5,6 +5,7 @@ SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
 alias syscall R1;
 
 syscall = [[PTBR + 2 * ((userSP - 5) / 512)] * 512 + (userSP - 5) % 512];
+breakpoint;
 if (syscall == 21) then
 
 	[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 21;
@@ -12,6 +13,7 @@ if (syscall == 21) then
 	alias pid R3;
 	pid = [SYSTEM_STATUS_TABLE + 1];
 	userid = [PROCESS_TABLE + pid * 16 + 3];
+	breakpoint;
 	if ((pid != 1) || (userid != 1)) then
 		SP = userSP;
 		[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
@@ -19,6 +21,7 @@ if (syscall == 21) then
 		ireturn;
 	endif;
 
+	breakpoint;
 	// killAll
 	alias entry R4;
 	entry = 2;
@@ -46,6 +49,7 @@ if (syscall == 21) then
 		entry = entry + 1;
 	endwhile;
 
+	breakpoint;
 	// inode table and user table
 	multipush(R2, R3);
 	R1 = 1;

@@ -150,6 +150,7 @@ then
 	alias pid R2;
 	alias entry R3;
 	entry = 0;
+	breakpoint;
 	while (entry < MAX_FILE_NUM) do
 		// acquire inode
 		multipush(R1, R2, R3);
@@ -161,6 +162,7 @@ then
 		entry = entry + 1;
 	endwhile;
 
+	breakpoint;
 	entry = 2;
 	while (entry < 16) do
 		if (pid != entry && [PROCESS_TABLE + 16 * entry + 4] != TERMINATED) then

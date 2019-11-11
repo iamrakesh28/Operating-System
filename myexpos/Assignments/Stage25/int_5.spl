@@ -6,7 +6,6 @@ SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
 syscall = [[PTBR + 2 * ((userSP - 5) / 512)] * 512 + (userSP - 5) % 512];
 alias ret R9;
 ret = [PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512;
-
 // open system call
 if (syscall == 2) then
 	[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 2;
@@ -111,13 +110,26 @@ if (syscall == 6) then
 		if (offset == 0) then
 			[OPEN_FILE_TABLE + 4 * index + 2] = 0;
 		else
-			if ((lseek + offset > size) || (lseek + offset < 0)) then
+			if (lseek + offset < 0) then
+		
+				// release inode
+				multipush(R0, R9);
+				R1 = 5;
+				R2 = inode;
+				R3 = [SYSTEM_STATUS_TABLE + 1];
+				call MOD_0;
+				multipop(R0, R9);
+				[ret] = 0;
 				[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = -2;
 				[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
 				SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
 				ireturn;
 			endif;
-			[OPEN_FILE_TABLE + 4 * index + 2] = lseek + offset;
+			if (lseek + offset > size) then
+				[OPEN_FILE_TABLE + 4 * index + 2] = size;
+			else
+				[OPEN_FILE_TABLE + 4 * index + 2] = lseek + offset;
+			endif;
 		endif;
 
 		// release inode

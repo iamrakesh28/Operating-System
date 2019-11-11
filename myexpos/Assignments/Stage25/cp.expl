@@ -1,0 +1,32 @@
+int main() {
+
+	decl
+	int ret, fd1, fd2;
+	string file1, file2, word;
+	enddecl
+	begin
+		ret = exposcall("Read", -1, file1);
+		ret = exposcall("Read", -1, file2);
+		ret = exposcall("Create", file2, 0);
+		if (ret < 0) then
+			ret = exposcall("Write", -2, "Failed");
+		else
+			fd1 = exposcall("Open", file1);
+			if (fd1 < 0) then
+				ret = exposcall("Write", -2, "FailOpen");
+			else
+				fd2 = exposcall("Open", file2);
+				if (fd2 < 0) then
+					ret = exposcall("Write", -2, "FailOpen");
+				else
+					ret = exposcall("Read", fd1, word);
+					while (ret >= 0) do
+						ret = exposcall("Write", fd2, word);
+						ret = exposcall("Read", fd1, word);
+					endwhile;
+				endif;
+			endif;
+		endif;
+		return 0;
+	end
+}
